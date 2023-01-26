@@ -9,6 +9,16 @@ logger () {
 }
 logger "Starting..."
 
+# Determine window id for the screenshot capturing
+until [ -n "${winid}" ]
+do
+  echo "Search florr.io window id.."
+  sleep 1
+  winid=`xwininfo -tree -root | grep "florr.io" | awk '{print $1}'`
+done
+logger "florr.io window id is $winid"
+echo   "florr.io window id is $winid"
+
 while true
 do
   # Sleep ~5-9 mins
@@ -16,7 +26,8 @@ do
   sleep $sleeptime 
 
   # Check color of pixel (1DD129FF = player is dead, don't press key)
-  flameshot full -r > $TmpScrFile 
+  #flameshot full -r > $TmpScrFile 
+  import -window $winid $TmpScrFile
   screentime=`date +%Y%m%d-%H-%M-%S`
   pixcolor=$(convert $TmpScrFile -format "%[hex:u.p{675,500}]\n" info:)
   if [ "$pixcolor" != "1DD129FF" ]; then

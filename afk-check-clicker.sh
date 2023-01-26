@@ -10,12 +10,24 @@ logger () {
 }
 logger "Starting..."
 
+# Determine window id for the screenshot capturing
+until [ -n "${winid}" ]
+do
+  echo "Search florr.io window id.."
+  sleep 1 
+  winid=`xwininfo -tree -root | grep "florr.io" | awk '{print $1}'`
+done
+logger "florr.io window id is $winid"
+echo   "florr.io window id is $winid"
+
+
 while true
 do 
   sleeptime=20
   sleep $sleeptime 
 
-  flameshot full -r > $TmpScrFile 
+  #flameshot full -r > $TmpScrFile 
+  import -window $winid $TmpScrFile
   screentime=`date +%Y%m%d-%H-%M-%S`
   convert $TmpScrFile -negate -threshold 40% $TmpBWScrFile
   
