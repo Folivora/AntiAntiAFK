@@ -27,7 +27,7 @@ do
   sleep $sleeptime 
 
   #flameshot full -r > $TmpScrFile 
-  import -window $winid $TmpScrFile
+  import -silent -window $winid $TmpScrFile
   screentime=`date +%Y%m%d-%H-%M-%S`
   convert $TmpScrFile -negate -threshold 40% $TmpBWScrFile
   
@@ -222,10 +222,13 @@ do
  #### Loop for debug.
  ###while true
  ###do
+    wOffset=`xwininfo -id $winid | grep "Relative upper-left X:" | awk '{print $4}'`
+    hOffset=`xwininfo -id $winid | grep "Relative upper-left Y:" | awk '{print $4}'`
+
     w_rndm=`seq -20 20 | shuf -n 1`
     h_rndm=`seq -3 3 | shuf -n 1`
-    Width=`expr $coordinateWidth + 45 + $w_rndm`
-    Hight=`expr $coordinateHight + 61 + $h_rndm`
+    Width=`expr $wOffset + $coordinateWidth + 45 + $w_rndm`
+    Hight=`expr $hOffset + $coordinateHight + 61 + $h_rndm`
     xdotool mousemove $Width $Hight  click 1
     logger "Click at position $Width"x"$Hight"
  ###done
