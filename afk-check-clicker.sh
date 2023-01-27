@@ -56,7 +56,7 @@ do
     ## Trying to find coordinates of the trigger phrase BY WIDTH. ##
     ################################################################
 
-    coordinateWidth=0 # The TriggerPhrase located to the right of this coordinate.
+    coordinateWidth=0 # The TriggerPhrase is located to the right of this coordinate.
   
     currScrFile=$TmpBWScrFile
     currHeight=`identify -format '%h' $currScrFile`
