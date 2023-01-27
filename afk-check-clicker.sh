@@ -1,5 +1,8 @@
 #!/bin/bash
 
+CALIBRATION=false
+
+CalibrationFile="./calibration.png"
 TmpScrFile="/tmp/test-ocr.png"
 TmpBWScrFile="/tmp/test-ocr-bw.png"
 LogDir="logs/"
@@ -15,7 +18,7 @@ until [ -n "${winid}" ]
 do
   echo "Search florr.io window id.."
   sleep 1 
-  winid=`xwininfo -tree -root | grep "florr.io" | awk '{print $1}'`
+  winid=`xwininfo -tree -root | grep "florr.io" | awk '{print $1}' | head -n1`
 done
 logger "florr.io window id is $winid"
 echo   "florr.io window id is $winid"
@@ -24,7 +27,7 @@ echo   "florr.io window id is $winid"
 while true
 do 
   sleeptime=20
-  sleep $sleeptime 
+  if ! $CALIBRATION ; then sleep $sleeptime ; fi
 
   #flameshot full -r > $TmpScrFile 
   import -silent -window $winid $TmpScrFile
@@ -122,6 +125,7 @@ do
             # The trigger phrase cant be recognize now.
             coordinateWidth=`expr $coordinateWidth + $currPixOffset - $step`
             CoordinateFound=true
+
             break
           fi
           currScrFile=$currScrFile"O"
@@ -216,22 +220,29 @@ do
     logger "coordinateHight is $coordinateHight"
   
 
-    # coordinates of trigger phrase's top left corner 798x356
-    # center of button 846x415
-    # 
- #### Loop for debug.
- ###while true
- ###do
-    wOffset=`xwininfo -id $winid | grep "Relative upper-left X:" | awk '{print $4}'`
-    hOffset=`xwininfo -id $winid | grep "Relative upper-left Y:" | awk '{print $4}'`
+    if $CALIBRATION ; then cp $TmpScrFile $CalibrationFile ; fi
+    for i in {1..25} 
+    do
+       wOffset=`xwininfo -id $winid | grep "Relative upper-left X:" | awk '{print $4}'`
+       hOffset=`xwininfo -id $winid | grep "Relative upper-left Y:" | awk '{print $4}'`
+    
+       w_rndm=`seq -20 20 | shuf -n 1`
+       h_rndm=`seq -3 3 | shuf -n 1`
+       Width=`expr $wOffset + $coordinateWidth + 45 + $w_rndm`
+       Hight=`expr $hOffset + $coordinateHight + 61 + $h_rndm`
 
-    w_rndm=`seq -20 20 | shuf -n 1`
-    h_rndm=`seq -3 3 | shuf -n 1`
-    Width=`expr $wOffset + $coordinateWidth + 45 + $w_rndm`
-    Hight=`expr $hOffset + $coordinateHight + 61 + $h_rndm`
-    xdotool mousemove $Width $Hight  click 1
-    logger "Click at position $Width"x"$Hight"
- ###done
+       logger "Click at position $Width"x"$Hight"
+
+       if $CALIBRATION ; then
+         convert $CalibrationFile -fill red -stroke black -draw "circle $Width,$Hight `expr $Width + 2`,`expr $Hight + 2`" $CalibrationFile
+       else 
+         xdotool mousemove $Width $Hight  click 1
+         break
+       fi
+    
+    done
+
+    if $CALIBRATION ; then exit 0 ; fi
 
   fi
   
