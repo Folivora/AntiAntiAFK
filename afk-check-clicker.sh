@@ -128,28 +128,26 @@ do
         # Crops the previous succesful part of screenshot to the right of the middle. 
         logger "DEBUG" "The TriggerPhrase not found ($currScrFile_rightside)"
         currPixOffset=0; step=75
-        if [ `expr $midWidth + $step` -lt $currWidth  ]; then 
-          logger "DEBUG" "Iteratively crop the $currScrFile to the right of the middle with step $step pix:"
-          while true
-          do 
-            currPixOffset=`expr $currPixOffset + $step`
+        logger "DEBUG" "Iteratively crop the $currScrFile to the right of the middle with step $step pix:"
+        while true
+        do 
+          currPixOffset=`expr $currPixOffset + $step`
 
-            logger "DEBUG" "Cropping $currScrFile -> $currScrFile""o"""
-            convert $currScrFile +repage -crop\
-                    `expr $midWidth + $currPixOffset`"x"$currHeight"+"`expr $midWidth - $currPixOffset`"+0"   $currScrFile"o"\
-                    2> >(errAbsorb)
+          logger "DEBUG" "Cropping $currScrFile -> $currScrFile""o"
+          convert $currScrFile +repage -crop\
+                  `expr $midWidth + $currPixOffset`"x"$currHeight"+"`expr $midWidth - $currPixOffset`"+0"   $currScrFile"o"\
+                  2> >(errAbsorb)
 
-            logger "DEBUG" "Search the TriggerPhrase in $currScrFile""o"""
-            if [ `tesseract -l eng $currScrFile"o"  - quiet 2> >(errAbsorb) | grep "$TriggerPhrase" | wc -l` -eq 1 ]; then 
-              # The trigger phrase can be recognized by OCR now.
-              currScrFile=$currScrFile"o"
-              coordinateWidth=`expr $coordinateWidth + $midWidth - $currPixOffset`
-              logger "DEBUG" "The TriggerPhrase was found."
-              logger "DEBUG" "coordinateWidth changed to $coordinateWidth. Old value is `expr $coordinateWidth - $midWidth + $currPixOffset`"
-              break
-            fi
-          done
-        fi
+          logger "DEBUG" "Search the TriggerPhrase in $currScrFile""o"
+          if [ `tesseract -l eng $currScrFile"o"  - quiet 2> >(errAbsorb) | grep "$TriggerPhrase" | wc -l` -eq 1 ]; then 
+            # The trigger phrase can be recognized by OCR now.
+            currScrFile=$currScrFile"o"
+            coordinateWidth=`expr $coordinateWidth + $midWidth - $currPixOffset`
+            logger "DEBUG" "The TriggerPhrase was found."
+            logger "DEBUG" "coordinateWidth changed to $coordinateWidth. Old value is `expr $coordinateWidth - $midWidth + $currPixOffset`"
+            break
+          fi
+        done
 
         # Iteratively crop the right part of currScrFile until the trigger phrase is no longer recognized by OCR. 
         currPixOffset=0; step=10
@@ -159,12 +157,12 @@ do
           currPixOffset=`expr $currPixOffset + $step`
           currWidth=`identify -format '%w' $currScrFile`
 
-          logger "DEBUG" "Cropping $currScrFile -> $currScrFile""O"""
+          logger "DEBUG" "Cropping $currScrFile -> $currScrFile""O"
           convert $currScrFile +repage -crop\
                   `expr $currWidth - $step`"x"$currHeight"+"$step"+0"   $currScrFile"O"\
                   2> >(errAbsorb)
 
-          logger "DEBUG" "Search the TriggerPhrase in $currScrFile""O"""
+          logger "DEBUG" "Search the TriggerPhrase in $currScrFile""O"
           if [ `tesseract -l eng $currScrFile"O" - quiet 2> >(errAbsorb) | grep "$TriggerPhrase" | wc -l` -eq 0 ]; then 
             # The trigger phrase can't be recognized now.
             coordinateWidth=`expr $coordinateWidth + $currPixOffset - $step`
@@ -210,7 +208,7 @@ do
         # Cut off the bottom half and check trigger phrase here.
         currScrFile_bottomside=$currScrFile"b"
         logger "DEBUG" "The TriggerPhrase not found ($currScrFile_topside)"
-        logger "DEBUG" "Cut off the right half of $currScrFile to $currScrFile_bottomside"
+        logger "DEBUG" "Cut off the bottom half of $currScrFile to $currScrFile_bottomside"
         convert $currScrFile +repage -crop $currWidth"x"$midHeight"+0+"$midHeight $currScrFile_bottomside 2> >(errAbsorb)
         logger "DEBUG" "Search the TriggerPhrase in $currScrFile_bottomside"
         if [ `tesseract -l eng $currScrFile_bottomside - quiet 2> >(errAbsorb) | grep "$TriggerPhrase" | wc -l` -ge 1 ]; then found_bottomside=1; fi
@@ -232,28 +230,31 @@ do
         # Crops the previous succesful part of screenshot to the top of the middle. 
         logger "DEBUG" "The TriggerPhrase not found ($currScrFile_bottomside)"
         currPixOffset=0; step=35
-        if [ `expr $midHeight + $step` -lt $currHeight  ]; then 
-          logger "DEBUG" "Iteratively crop the $currScrFile to the top of the middle with step $step pix:"
-          while true
-          do 
-            currPixOffset=`expr $currPixOffset + $step`
+        logger "DEBUG" "Iteratively crop the $currScrFile to the top of the middle with step $step pix:"
+        while true
+        do 
+          currPixOffset=`expr $currPixOffset + $step`
+          if [ $currPixOffset -ge $midHeight ]; then
+            TriggerPhrase=${TriggerPhrase:1}
+            currPixOffset=0
+            logger "DEBUG" "currPixOffset has too much value. It seems tesseract can no longer recognize the trigger phrase due to bug. Remove first character of the TriggerPhrase and repeat cropping by height. New value the TriggerPhrase is \"$TriggerPhrase\" now."
+          fi
 
-            logger "DEBUG" "Cropping $currScrFile -> $currScrFile""o"""
-            convert $currScrFile +repage -crop\
-                    $currWidth"x"`expr $midHeight + $currPixOffset`"+0+"`expr $midHeight - $currPixOffset`  $currScrFile"o"\
-                    2> >(errAbsorb)
+          logger "DEBUG" "Cropping $currScrFile -> $currScrFile""o"
+          convert $currScrFile +repage -crop\
+                  $currWidth"x"`expr $midHeight + $currPixOffset`"+0+"`expr $midHeight - $currPixOffset`  $currScrFile"o"\
+                  2> >(errAbsorb)
 
-            logger "DEBUG" "Search the TriggerPhrase in $currScrFile""o"""
-            if [ `tesseract -l eng $currScrFile"o"  - quiet 2> >(errAbsorb) | grep "$TriggerPhrase" | wc -l` -eq 1 ]; then 
-              # The trigger phrase can be recognized by OCR now.
-              currScrFile=$currScrFile"o"
-              coordinateHeight=`expr $coordinateHeight + $midHeight - $currPixOffset`
-              logger "DEBUG" "The TriggerPhrase was found."
-              logger "DEBUG" "coordinateHeight changed to $coordinateHeight. Old value is `expr $coordinateHeight - $midHeight + $currPixOffset`"
-              break
-            fi
-          done
-        fi
+          logger "DEBUG" "Search the TriggerPhrase in $currScrFile""o"
+          if [ `tesseract -l eng $currScrFile"o"  - quiet 2> >(errAbsorb) | grep "$TriggerPhrase" | wc -l` -eq 1 ]; then 
+            # The trigger phrase can be recognized by OCR now.
+            currScrFile=$currScrFile"o"
+            coordinateHeight=`expr $coordinateHeight + $midHeight - $currPixOffset`
+            logger "DEBUG" "The TriggerPhrase was found."
+            logger "DEBUG" "coordinateHeight changed to $coordinateHeight. Old value is `expr $coordinateHeight - $midHeight + $currPixOffset`"
+            break
+          fi
+        done
 
         # Iteratively crop the top part of currScrFile until the trigger phrase is no longer recognized by OCR. 
         currPixOffset=0; step=8
@@ -263,12 +264,12 @@ do
           currPixOffset=`expr $currPixOffset + $step`
           currHeight=`identify -format '%h' $currScrFile`
 
-          logger "DEBUG" "Cropping $currScrFile -> $currScrFile""O"""
+          logger "DEBUG" "Cropping $currScrFile -> $currScrFile""O"
           convert $currScrFile +repage -crop\
                   $currWidth"x"`expr $currHeight - $step`"+0+"$step   $currScrFile"O"\
                   2> >(errAbsorb)
 
-          logger "DEBUG" "Search the TriggerPhrase in $currScrFile""O"""
+          logger "DEBUG" "Search the TriggerPhrase in $currScrFile""O"
           if [ `tesseract -l eng $currScrFile"O" - quiet 2> >(errAbsorb) | grep "$TriggerPhrase" | wc -l` -eq 0 ]; then 
             # The trigger phrase can't be recognized now.
             coordinateHeight=`expr $coordinateHeight + $currPixOffset - $step`
@@ -295,8 +296,8 @@ do
          winCoordinateW=0
          winCoordinateH=0
        else
-         winCoordinateW=`xwininfo -id $winid | grep "Relative upper-left X:" | awk '{print $4}'`
-         winCoordinateH=`xwininfo -id $winid | grep "Relative upper-left Y:" | awk '{print $4}'`
+         winCoordinateW=`xwininfo -id $winid | grep "Absolute upper-left X:" | awk '{print $4}'`
+         winCoordinateH=`xwininfo -id $winid | grep "Absolute upper-left Y:" | awk '{print $4}'`
        fi
     
        w_rndm=`seq -20 20 | shuf -n 1`
