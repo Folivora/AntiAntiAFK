@@ -5,11 +5,12 @@ script_logging_level="DEBUG"
 
 CALIBRATION=false
 
+ConfigFile="./aaafk.cfg"
+LogDir="logs/"
+LogFile=$LogDir"afk_clicker.log"
 CalibrationFile="./calibration.png"
 TmpScrFile="/tmp/test-ocr.png"
 TmpBWScrFile="/tmp/test-ocr-bw.png"
-LogDir="logs/"
-LogFile=$LogDir"afk_clicker.log"
 
 logger () {
   log_priority=$1
@@ -23,6 +24,15 @@ logger () {
 
   echo `date +%Y%m%d\|%H:%M:%S\|`" afk-check-clicker.sh| ${log_priority}| ${log_message}" >> $LogFile 
 }
+
+errAbsorb () {
+ # syntax:   <command> 2> >(errAbsorb)
+ while read inputLine; 
+ do
+   logger "ERROR" "$inputLine"
+ done
+}
+
 logger "INFO" "Starting..."
 
 
@@ -43,7 +53,7 @@ do
   if ! $CALIBRATION ; then sleep $sleeptime ; fi
 
   #flameshot full -r > $TmpScrFile 
-  import -silent -window $winid $TmpScrFile
+  import -silent -window $winid $TmpScrFile 2> >(errAbsorb)
   screentime=`date +%Y%m%d-%H-%M-%S`
   logger "DEBUG" "A screenshot has been taken. Screentime is $screentime."
   convert $TmpScrFile -negate -threshold 40% $TmpBWScrFile
@@ -52,7 +62,7 @@ do
   logger "DEBUG" "TriggerPhrase=\"AFK Check\""
   
   # Search the trigger phrase
-  result=`tesseract -l eng $TmpBWScrFile - quiet |  grep "$TriggerPhrase" | wc -l`
+  result=`tesseract -l eng $TmpBWScrFile - quiet 2> >(errAbsorb) |  grep "$TriggerPhrase" | wc -l`
   logger "DEBUG" "Search the trigger phrase complete. $result matches were found."
 
   if [ $result -ge 1 ]; then
@@ -88,18 +98,18 @@ do
       found_leftside=0; found_rightside=0
       currScrFile_leftside=$currScrFile"l"
       logger "DEBUG" "Cut off the left half of $currScrFile to $currScrFile_leftside"
-      convert $currScrFile +repage -crop $midWidth"x"$currHeight"+0+0" $currScrFile_leftside
+      convert $currScrFile +repage -crop $midWidth"x"$currHeight"+0+0" $currScrFile_leftside 2> >(errAbsorb)
       logger "DEBUG" "Search the TriggerPhrase in $currScrFile_leftside"
-      if [ `tesseract -l eng $currScrFile_leftside  - quiet | grep "$TriggerPhrase" | wc -l` -ge 1 ]; then found_leftside=1; 
+      if [ `tesseract -l eng $currScrFile_leftside  - quiet 2> >(errAbsorb) | grep "$TriggerPhrase" | wc -l` -ge 1 ]; then found_leftside=1; 
 
       else # If phrase is not found in the left half
         # Cut off the right half and check trigger phrase here.
         currScrFile_rightside=$currScrFile"r"
         logger "DEBUG" "The TriggerPhrase not found ($currScrFile_leftside)"
         logger "DEBUG" "Cut off the right half of $currScrFile to $currScrFile_rightside"
-        convert $currScrFile +repage -crop $midWidth"x"$currHeight"+"$midWidth"+0" $currScrFile_rightside
+        convert $currScrFile +repage -crop $midWidth"x"$currHeight"+"$midWidth"+0" $currScrFile_rightside 2> >(errAbsorb)
         logger "DEBUG" "Search the TriggerPhrase in $currScrFile_rightside"
-        if [ `tesseract -l eng $currScrFile_rightside - quiet | grep "$TriggerPhrase" | wc -l` -ge 1 ]; then found_rightside=1; fi
+        if [ `tesseract -l eng $currScrFile_rightside - quiet 2> >(errAbsorb) | grep "$TriggerPhrase" | wc -l` -ge 1 ]; then found_rightside=1; fi
 
       fi
   
@@ -126,10 +136,11 @@ do
 
             logger "DEBUG" "Cropping $currScrFile -> $currScrFile""o"""
             convert $currScrFile +repage -crop\
-                    `expr $midWidth + $currPixOffset`"x"$currHeight"+"`expr $midWidth - $currPixOffset`"+0"   $currScrFile"o"
+                    `expr $midWidth + $currPixOffset`"x"$currHeight"+"`expr $midWidth - $currPixOffset`"+0"   $currScrFile"o"\
+                    2> >(errAbsorb)
 
             logger "DEBUG" "Search the TriggerPhrase in $currScrFile""o"""
-            if [ `tesseract -l eng $currScrFile"o"  - quiet 2>&1 | grep "$TriggerPhrase" | wc -l` -eq 1 ]; then 
+            if [ `tesseract -l eng $currScrFile"o"  - quiet 2> >(errAbsorb) | grep "$TriggerPhrase" | wc -l` -eq 1 ]; then 
               # The trigger phrase can be recognized by OCR now.
               currScrFile=$currScrFile"o"
               coordinateWidth=`expr $coordinateWidth + $midWidth - $currPixOffset`
@@ -150,10 +161,11 @@ do
 
           logger "DEBUG" "Cropping $currScrFile -> $currScrFile""O"""
           convert $currScrFile +repage -crop\
-                  `expr $currWidth - $step`"x"$currHeight"+"$step"+0"   $currScrFile"O"
+                  `expr $currWidth - $step`"x"$currHeight"+"$step"+0"   $currScrFile"O"\
+                  2> >(errAbsorb)
 
           logger "DEBUG" "Search the TriggerPhrase in $currScrFile""O"""
-          if [ `tesseract -l eng $currScrFile"O" - quiet 2>&1 | grep "$TriggerPhrase" | wc -l` -eq 0 ]; then 
+          if [ `tesseract -l eng $currScrFile"O" - quiet 2> >(errAbsorb) | grep "$TriggerPhrase" | wc -l` -eq 0 ]; then 
             # The trigger phrase can't be recognized now.
             coordinateWidth=`expr $coordinateWidth + $currPixOffset - $step`
             CoordinateFound=true
@@ -190,18 +202,18 @@ do
       found_topside=0; found_bottomside=0
       currScrFile_topside=$currScrFile"t"
       logger "DEBUG" "Cut off the top half of $currScrFile to $currScrFile_topside"
-      convert $currScrFile +repage -crop $currWidth"x"$midHeight"+0+0"          $currScrFile_topside
+      convert $currScrFile +repage -crop $currWidth"x"$midHeight"+0+0"          $currScrFile_topside   2> >(errAbsorb)
       logger "DEBUG" "Search the TriggerPhrase in $currScrFile_topside"
-      if [ `tesseract -l eng $currScrFile_topside  - quiet | grep "$TriggerPhrase" | wc -l` -ge 1 ]; then found_topside=1; 
+      if [ `tesseract -l eng $currScrFile_topside  - quiet 2> >(errAbsorb) | grep "$TriggerPhrase" | wc -l` -ge 1 ]; then found_topside=1; 
 
       else # If phrase is not found in the top half
         # Cut off the bottom half and check trigger phrase here.
         currScrFile_bottomside=$currScrFile"b"
         logger "DEBUG" "The TriggerPhrase not found ($currScrFile_topside)"
         logger "DEBUG" "Cut off the right half of $currScrFile to $currScrFile_bottomside"
-        convert $currScrFile +repage -crop $currWidth"x"$midHeight"+0+"$midHeight $currScrFile_bottomside
+        convert $currScrFile +repage -crop $currWidth"x"$midHeight"+0+"$midHeight $currScrFile_bottomside 2> >(errAbsorb)
         logger "DEBUG" "Search the TriggerPhrase in $currScrFile_bottomside"
-        if [ `tesseract -l eng $currScrFile_bottomside - quiet | grep "$TriggerPhrase" | wc -l` -ge 1 ]; then found_bottomside=1; fi
+        if [ `tesseract -l eng $currScrFile_bottomside - quiet 2> >(errAbsorb) | grep "$TriggerPhrase" | wc -l` -ge 1 ]; then found_bottomside=1; fi
 
       fi
 
@@ -228,10 +240,11 @@ do
 
             logger "DEBUG" "Cropping $currScrFile -> $currScrFile""o"""
             convert $currScrFile +repage -crop\
-                    $currWidth"x"`expr $midHeight + $currPixOffset`"+0+"`expr $midHeight - $currPixOffset`  $currScrFile"o"
+                    $currWidth"x"`expr $midHeight + $currPixOffset`"+0+"`expr $midHeight - $currPixOffset`  $currScrFile"o"\
+                    2> >(errAbsorb)
 
             logger "DEBUG" "Search the TriggerPhrase in $currScrFile""o"""
-            if [ `tesseract -l eng $currScrFile"o"  - quiet 2>&1 | grep "$TriggerPhrase" | wc -l` -eq 1 ]; then 
+            if [ `tesseract -l eng $currScrFile"o"  - quiet 2> >(errAbsorb) | grep "$TriggerPhrase" | wc -l` -eq 1 ]; then 
               # The trigger phrase can be recognized by OCR now.
               currScrFile=$currScrFile"o"
               coordinateHeight=`expr $coordinateHeight + $midHeight - $currPixOffset`
@@ -252,10 +265,11 @@ do
 
           logger "DEBUG" "Cropping $currScrFile -> $currScrFile""O"""
           convert $currScrFile +repage -crop\
-                  $currWidth"x"`expr $currHeight - $step`"+0+"$step   $currScrFile"O"
+                  $currWidth"x"`expr $currHeight - $step`"+0+"$step   $currScrFile"O"\
+                  2> >(errAbsorb)
 
           logger "DEBUG" "Search the TriggerPhrase in $currScrFile""O"""
-          if [ `tesseract -l eng $currScrFile"O" - quiet 2>&1 | grep "$TriggerPhrase" | wc -l` -eq 0 ]; then 
+          if [ `tesseract -l eng $currScrFile"O" - quiet 2> >(errAbsorb) | grep "$TriggerPhrase" | wc -l` -eq 0 ]; then 
             # The trigger phrase can't be recognized now.
             coordinateHeight=`expr $coordinateHeight + $currPixOffset - $step`
             CoordinateFound=true
@@ -272,26 +286,33 @@ do
     logger "INFO" "coordinateHeight is $coordinateHeight"
   
 
+    resolutOffsetW=`grep "winCoordinateW" $ConfigFile  | awk -F '=' '{print $2}'`
+    resolutOffsetH=`grep "winCoordinateH" $ConfigFile  | awk -F '=' '{print $2}'`
     if $CALIBRATION ; then cp $TmpScrFile $CalibrationFile ; fi
     for i in {1..25} 
     do
-       wOffset=`xwininfo -id $winid | grep "Relative upper-left X:" | awk '{print $4}'`
-       hOffset=`xwininfo -id $winid | grep "Relative upper-left Y:" | awk '{print $4}'`
+       if $CALIBRATION ; then
+         winCoordinateW=0
+         winCoordinateH=0
+       else
+         winCoordinateW=`xwininfo -id $winid | grep "Relative upper-left X:" | awk '{print $4}'`
+         winCoordinateH=`xwininfo -id $winid | grep "Relative upper-left Y:" | awk '{print $4}'`
+       fi
     
        w_rndm=`seq -20 20 | shuf -n 1`
        h_rndm=`seq -3 3 | shuf -n 1`
-       Width=`expr $wOffset + $coordinateWidth + 45 + $w_rndm`
-       Height=`expr $hOffset + $coordinateHeight + 61 + $h_rndm`
+       Width=`expr $winCoordinateW + $coordinateWidth + $resolutOffsetW + $w_rndm`
+       Height=`expr $winCoordinateH + $coordinateHeight + $resolutOffsetH + $h_rndm`
 
        logger "DEBUG" "coordinateWidth is $coordinateWidth. coordinateHeight is $coordinateHeight."
-       logger "DEBUG" "        wOffset is $wOffset.         hOffset is $hOffset."
+       logger "DEBUG" " winCoordinateW is $winCoordinateW.  winCoordinateH is $winCoordinateH."
        logger "DEBUG" "         w_rndm is $w_rndm.          h_rndm is $h_rndm."
        logger "INFO" "Click at position $Width"x"$Height"
 
        if $CALIBRATION ; then
-         convert $CalibrationFile -fill red -stroke black -draw "circle $Width,$Height `expr $Width + 2`,`expr $Height + 2`" $CalibrationFile
+         convert $CalibrationFile -fill red -stroke black -draw "circle $Width,$Height `expr $Width + 2`,`expr $Height + 2`" $CalibrationFile 2> >(errAbsorb)
        else 
-         xdotool mousemove $Width $Height  click 1
+         xdotool mousemove $Width $Height  click 1 2> >(errAbsorb)
          break
        fi
     
