@@ -133,8 +133,12 @@ do
           while true
           do 
             currPixOffset=`expr $currPixOffset + $step`
+            if [ $currPixOffset -ge $midWidth ]; then
+              logger "DEBUG" "currPixOffset=$currPixOffset (currPixOffset >= midWidth). Break this cropping loop (step $step pix)."
+              break
+            fi
   
-            logger "DEBUG" "Cropping $currScrFile -> $currScrFile""o"
+            logger "DEBUG" "currPixOffset=$currPixOffset. Cropping $currScrFile -> $currScrFile""o"
             convert $currScrFile +repage -crop\
                     `expr $midWidth + $currPixOffset`"x"$currHeight"+"`expr $midWidth - $currPixOffset`"+0"   $currScrFile"o"\
                     2> >(errAbsorb)
@@ -243,7 +247,7 @@ do
               logger "DEBUG" "currPixOffset has too much value. It seems tesseract can no longer recognize the trigger phrase due to bug. Remove first character of the TriggerPhrase and repeat cropping by height. New value the TriggerPhrase is \"$TriggerPhrase\" now."
             fi
   
-            logger "DEBUG" "Cropping $currScrFile -> $currScrFile""o"
+            logger "DEBUG" "currPixOffset=$currPixOffset. Cropping $currScrFile -> $currScrFile""o"
             convert $currScrFile +repage -crop\
                     $currWidth"x"`expr $midHeight + $currPixOffset`"+0+"`expr $midHeight - $currPixOffset`  $currScrFile"o"\
                     2> >(errAbsorb)
