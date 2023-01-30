@@ -49,14 +49,14 @@ fi
 # they override default config and config file
 
 for arg in "$@"; do
-    if echo $arg | grep -F = &>/dev/null
+    if echo "$arg" | grep -F = &>/dev/null
          then eval "$arg"
          else echo "ERROR: $arg - wrong parameter"
     fi
 done
 
 
-mkdir -p $LogDir
+mkdir -p "$LogDir"
 scriptname=`basename "$0"`
 
 logger () {
