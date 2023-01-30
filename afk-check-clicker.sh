@@ -1,16 +1,63 @@
 #!/bin/bash
 
+ConfigFile="./aaafk.cfg"
+
+# for 1366x768 screen resolution make link:
+# ln -s aaafk-1366x768.cfg aaafk.cfg
+
+# for 1920x1080 screen resolution make link:
+# ln -s aaafk-1920x1080.cfg aaafk.cfg
+
 declare -A levels=([DEBUG]=0 [INFO]=1 [ERROR]=2)
+
+#####################
+## DEFAULT CONFIG: ##
+#####################
+
 script_logging_level="DEBUG"
 
 CALIBRATION=false
 
-ConfigFile="./aaafk.cfg"
 LogDir="logs/"
 LogFile=$LogDir"afk_clicker.log"
 CalibrationFile="./calibration.png"
 TmpScrFile="/tmp/test-ocr.png"
 TmpBWScrFile="/tmp/test-ocr-bw.png"
+
+resolutOffsetW=46
+resolutOffsetH=61
+w_rndm_max=20
+h_rndm_max=3
+
+WindowName="florr.io"
+TriggerPhrase="AFK Check"
+work_with_windows=0
+sleeptime=20
+
+#####################
+
+# default values (from the default config above) are used if the config file is not used
+# or some values are not set
+
+# settings from the config file override default config
+
+if [ -f $ConfigFile ]; then
+    . $ConfigFile
+fi
+
+# settings can be also given as parameters
+# they override default config and config file
+
+for arg in "$@"; do
+    if echo $arg | grep -F = &>/dev/null
+         then eval "$arg"
+         else echo "ERROR: $arg - wrong parameter"
+    fi
+done
+
+
+mkdir -p $LogDir
+scriptname=`basename "$0"`
 
 logger () {
   log_priority=$1
@@ -22,7 +69,7 @@ logger () {
   #check if level is enough
   (( ${levels[$log_priority]} < ${levels[$script_logging_level]} )) && return 2
 
-  echo `date +%Y%m%d\|%H:%M:%S\|`" afk-check-clicker.sh| ${log_priority}| ${log_message}" >> $LogFile 
+  echo `date +%Y%m%d\|%H:%M:%S\|`" $scriptname| ${log_priority}| ${log_message}" >> $LogFile 
 }
 
 errAbsorb () {
@@ -36,29 +83,29 @@ errAbsorb () {
 logger "INFO" "Starting..."
 
 
-# Determine window id for the screenshot capturing
-until [ -n "${winid}" ]
-do
-  echo "Search florr.io window id.."
-  sleep 1 
-  winid=`xwininfo -tree -root | grep "florr.io" | awk '{print $1}' | head -n1`
-done
-logger "INFO" "florr.io window id is $winid"
-echo   "florr.io window id is $winid"
-
+if ! $CALIBRATION ; then
+  # Determine window id for the screenshot capturing
+  until [ -n "${winid}" ]
+  do
+    echo "Searching \"$WindowName\" window id..."
+    sleep 1 
+    winid=`xwininfo -tree -root | grep "$WindowName" | awk '{print $1}' | head -n1`
+  done
+  logger "INFO" "\"$WindowName\" window id is $winid"
+  echo   "\"$WindowName\" window id is $winid"
+fi
 
 while true
 do 
-  sleeptime=20
-  if ! $CALIBRATION ; then sleep $sleeptime ; fi
-
-  #flameshot full -r > $TmpScrFile 
-  import -silent -window $winid $TmpScrFile 2> >(errAbsorb)
-  screentime=`date +%Y%m%d-%H-%M-%S`
-  logger "DEBUG" "A screenshot has been taken. Screentime is $screentime."
+  if ! $CALIBRATION ; then
+    sleep $sleeptime
+    #flameshot full -r > $TmpScrFile 
+    import -silent -window $winid $TmpScrFile 2> >(errAbsorb)
+    screentime=`date +%Y%m%d-%H-%M-%S`
+    logger "DEBUG" "A screenshot has been taken. Screentime is $screentime."
+  fi
   convert $TmpScrFile -negate -threshold 30% $TmpBWScrFile 2> >(errAbsorb)
   
-  TriggerPhrase="AFK Check"
   logger "DEBUG" "TriggerPhrase=\"$TriggerPhrase\""
   
   # Search the trigger phrase
@@ -295,8 +342,6 @@ do
     logger "INFO" "coordinateHeight is $coordinateHeight"
   
 
-    resolutOffsetW=`grep "winCoordinateW" $ConfigFile  | awk -F '=' '{print $2}'`
-    resolutOffsetH=`grep "winCoordinateH" $ConfigFile  | awk -F '=' '{print $2}'`
     if $CALIBRATION ; then cp $TmpScrFile $CalibrationFile ; fi
     for i in {1..25} 
     do
@@ -308,8 +353,8 @@ do
          winCoordinateH=`xwininfo -id $winid | grep "Absolute upper-left Y:" | awk '{print $4}'`
        fi
     
-       w_rndm=`seq -20 20 | shuf -n 1`
-       h_rndm=`seq -3 3 | shuf -n 1`
+       w_rndm=`seq -$w_rndm_max $w_rndm_max | shuf -n 1`
+       h_rndm=`seq -$h_rndm_max $h_rndm_max | shuf -n 1`
        Width=`expr $winCoordinateW + $coordinateWidth + $resolutOffsetW + $w_rndm`
        Height=`expr $winCoordinateH + $coordinateHeight + $resolutOffsetH + $h_rndm`
 
@@ -320,11 +365,16 @@ do
 
        if $CALIBRATION ; then
          convert $CalibrationFile -fill red -stroke black -draw "circle $Width,$Height `expr $Width + 2`,`expr $Height + 2`" $CalibrationFile 2> >(errAbsorb)
-       else 
-         xdotool mousemove $Width $Height  click 1 2> >(errAbsorb)
+       else
+         if $work_with_windows ; then
+            currentwindowid=`xdotool getactivewindow` 2> >(errAbsorb)
+            xdotool  windowactivate $winid  mousemove $Width $Height  click 1  mousemove restore  windowactivate $currentwindowid  2> >(errAbsorb)
+         else
+            xdotool mousemove $Width $Height  click 1 2> >(errAbsorb)
+         fi
          break
        fi
-    
+
     done
 
     if $CALIBRATION ; then exit 0 ; fi
