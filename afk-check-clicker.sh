@@ -56,7 +56,7 @@ do
   import -silent -window $winid $TmpScrFile 2> >(errAbsorb)
   screentime=`date +%Y%m%d-%H-%M-%S`
   logger "DEBUG" "A screenshot has been taken. Screentime is $screentime."
-  convert $TmpScrFile -negate -threshold 40% $TmpBWScrFile 2> >(errAbsorb)
+  convert $TmpScrFile -negate -threshold 30% $TmpBWScrFile 2> >(errAbsorb)
   
   TriggerPhrase="AFK Check"
   logger "DEBUG" "TriggerPhrase=\"$TriggerPhrase\""
