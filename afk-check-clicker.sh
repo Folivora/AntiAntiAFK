@@ -1,40 +1,16 @@
 #!/bin/bash
 
-declare -A levels=([DEBUG]=0 [INFO]=1 [ERROR]=2)
-script_logging_level="DEBUG"
+source ./logger.sh
 
+SCRIPT_LOGGING_LEVEL="DEBUG"
 CALIBRATION=false
 
 ConfigFile="./aaafk.cfg"
-LogDir="logs/"
-LogFile=$LogDir"afk_clicker.log"
 CalibrationFile="./calibration.png"
 TmpScrFile="/tmp/test-ocr.png"
 TmpBWScrFile="/tmp/test-ocr-bw.png"
 
-logger () {
-  log_priority=$1
-  log_message=$2
-
-  #check if level exists
-  [[ ${levels[$log_priority]} ]] || return 1
-
-  #check if level is enough
-  (( ${levels[$log_priority]} < ${levels[$script_logging_level]} )) && return 2
-
-  echo `date +%Y%m%d\|%H:%M:%S\|`" afk-check-clicker.sh| ${log_priority}| ${log_message}" >> $LogFile 
-}
-
-errAbsorb () {
- # syntax:   <command> 2> >(errAbsorb)
- while read inputLine; 
- do
-   logger "ERROR" "$inputLine"
- done
-}
-
 logger "INFO" "Starting..."
-
 
 # Determine window id for the screenshot capturing
 until [ -n "${winid}" ]
@@ -44,8 +20,7 @@ do
   winid=`xwininfo -tree -root | grep "florr.io" | awk '{print $1}' | head -n1`
 done
 logger "INFO" "florr.io window id is $winid"
-echo   "florr.io window id is $winid"
-
+echo          "florr.io window id is $winid"
 
 while true
 do 
