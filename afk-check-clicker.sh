@@ -31,7 +31,7 @@ h_rndm_max=3
 
 WindowName="florr.io"
 TriggerPhrase="AFK Check"
-work_with_windows=0
+work_with_windows=false
 sleeptime=20
 
 #####################
