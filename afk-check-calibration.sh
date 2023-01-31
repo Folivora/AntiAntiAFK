@@ -7,7 +7,7 @@ show_help()
 {
     echo "Usage: afk-check-calibration.sh [params] [-t params]"
     echo " "
-    echo "Options:  -l <param>               - Settings (variables) for the current script. Its must be specified before -t option." 
+    echo "Options:  -l <param>               - Settings (variables) for the current script." 
     echo "             \"<param1> <param2>\"     Quotation marks are required if more than one parameter is specified."
     echo "                                     Optional usage."
     echo " " 
@@ -55,10 +55,6 @@ do
     esac
 done
 
-
-
-echo "result $tParams"
-exit 0
 
 mkdir -p $dir_results
 
