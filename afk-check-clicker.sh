@@ -369,9 +369,10 @@ do
        else
          if $work_with_windows ; then
             currentwindowid=`xdotool getactivewindow` 2> >(errAbsorb)
-            xdotool  windowactivate $winid  mousemove $Width $Height  click 1  mousemove restore  windowactivate $currentwindowid  2> >(errAbsorb)
+            xdotool  windowactivate $winid  2> >(errAbsorb)    # it didn't work properly if it was 1 command instead of 2 (xdotool bug?)
+            xdotool  mousemove $Width $Height  click 1  mousemove restore  windowactivate $currentwindowid  2> >(errAbsorb)
          else
-            xdotool mousemove $Width $Height  click 1 2> >(errAbsorb)
+            xdotool  mousemove $Width $Height  click 1  2> >(errAbsorb)
          fi
          break
        fi
