@@ -2,7 +2,9 @@
 
 source ./logger.sh
 
+# Override default value from config
 SCRIPT_LOGGING_LEVEL="DEBUG"
+
 CALIBRATION=false
 
 ConfigFile="./aaafk.cfg"

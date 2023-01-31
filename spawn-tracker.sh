@@ -2,6 +2,7 @@
 
 source ./logger.sh
 
+# Override default value from config
 SCRIPT_LOGGING_LEVEL="INFO"
 
 SpawnLogFile=$LogDir"/mobs_spawn.log"  # Only for messages about spawntime. Not for debug.
@@ -60,6 +61,7 @@ do
     convert $TmpScrFile2 -negate -threshold 70% $TmpBWScrFile2
 
     if [ "$SCRIPT_LOGGING_LEVEL" = "DEBUG" ]; then 
+      if [ -z $LogDir ]; then  LogDir=`grep "LogDir" $ConfigFile  | awk -F '=' '{print $2}'` ; fi
       bkpDir=$LogDir"/"$screentime"-spawn"
       mkdir -p $bkpDir
       cp $TmpScrFile    $bkpDir"/"$screentime"-spawn.png" 

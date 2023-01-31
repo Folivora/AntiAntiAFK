@@ -1,10 +1,15 @@
 #!/bin/bash
 
-declare -A levels=([DEBUG]=0 [INFO]=1 [ERROR]=2)
-SCRIPT_LOGGING_LEVEL="INFO" # default
+ConfigFile="./aaafk.cfg"
 
-LogDir="logs"
-LogFile=$LogDir"/aaafk.log"
+declare -A levels=([DEBUG]=0 [INFO]=1 [ERROR]=2)
+
+# Load default values from config if the variables are empty.
+# Value of these vars can be overridden in a script from which below functions are calling. 
+if [ -z $SCRIPT_LOGGING_LEVEL ]; then  SCRIPT_LOGGING_LEVEL=`grep "SCRIPT_LOGGING_LEVEL" $ConfigFile  | awk -F '=' '{print $2}'` ; fi 
+if [ -z $LogDir ]; then  LogDir=`grep "LogDir" $ConfigFile  | awk -F '=' '{print $2}'` ; fi 
+if [ -z $LogFile ]; then  LogFile=$LogDir"/"`grep "LogFile" $ConfigFile  | awk -F '=' '{print $2}'` ; fi
+
 
 logger () {
   log_priority=$1

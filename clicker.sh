@@ -1,6 +1,8 @@
 #!/bin/bash
 
 source ./logger.sh
+
+# Override default value from config
 SCRIPT_LOGGING_LEVEL="INFO"
 
 TmpScrFile="/tmp/aaafk-clicker-scr.png"
