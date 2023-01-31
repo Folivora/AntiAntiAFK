@@ -30,7 +30,7 @@ w_rndm_max=20
 h_rndm_max=3
 
 WindowName="florr.io"
-TriggerPhrase="AFK Check"
+Trigger_Phrase="AFK Check"
 work_with_windows=false
 sleeptime=20
 
@@ -106,6 +106,7 @@ do
   fi
   convert $TmpScrFile -negate -threshold 30% $TmpBWScrFile 2> >(errAbsorb)
   
+  TriggerPhrase=$Trigger_Phrase
   logger "DEBUG" "TriggerPhrase=\"$TriggerPhrase\""
   
   # Search the trigger phrase
