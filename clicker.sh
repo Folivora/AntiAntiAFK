@@ -1,14 +1,13 @@
 #!/bin/bash
 
-TmpScrFile="/tmp/scr.png"
-LogDir="logs/"
-LogFile=$LogDir"afk_clicker.log"
+source ./logger.sh
 
-logger () {
-  echo `date +%Y-%m-%d\|%H:%M:%S\|`" clicker.sh|  $1" >> $LogFile 
-}
-logger "Starting..."
+# Override default value
+SCRIPT_LOGGING_LEVEL="INFO"
 
+TmpScrFile="/tmp/aaafk-clicker-scr.png"
+
+logger "INFO" "Starting..."
 # Determine window id for the screenshot capturing
 until [ -n "${winid}" ]
 do
@@ -16,8 +15,8 @@ do
   sleep 1
   winid=`xwininfo -tree -root | grep "florr.io" | awk '{print $1}'`
 done
-logger "florr.io window id is $winid"
-echo   "florr.io window id is $winid"
+logger "INFO" "florr.io window id is $winid"
+echo          "florr.io window id is $winid"
 
 while true
 do
@@ -27,20 +26,20 @@ do
 
   # Check color of pixel (1DD129FF = player is dead, don't press key)
   #flameshot full -r > $TmpScrFile 
-  import -silent -window $winid $TmpScrFile
+  import -silent -window $winid $TmpScrFile 2> >(errAbsorb)
   screentime=`date +%Y%m%d-%H-%M-%S`
-  pixcolor=$(convert $TmpScrFile -format "%[hex:u.p{675,500}]\n" info:)
+  pixcolor=$(convert $TmpScrFile -format "%[hex:u.p{675,500}]\n" info: 2> >(errAbsorb))
   if [ "$pixcolor" != "1DD129FF" ]; then
 
     keycode=$(shuf -n1 -e 10 15)  # 10 is key '1', 15 is key '6'.
     sleeptime2=$(echo $(shuf -i 1-10 -n 1)"."$(shuf -i 0-9 -n 1))
 
-    xdotool key $keycode 
+    xdotool key $keycode 2> >(errAbsorb)
     sleep $sleeptime2 
-    xdotool key $keycode 
-    logger "The key with keycode $keycode has been pressed twice with interval of $sleeptime2 sec."
+    xdotool key $keycode 2> >(errAbsorb) 
+    logger "INFO" "The key with keycode $keycode has been pressed twice with interval of $sleeptime2 sec."
 
   else
-    logger "The player is dead (screentime $screentime). Do nothing."
+    logger "INFO" "The player is dead (screentime $screentime). Do nothing."
   fi
 done

@@ -1,11 +1,11 @@
 #!/bin/bash
 
-declare -A levels=([DEBUG]=0 [INFO]=1 [ERROR]=2)
-script_logging_level="INFO"
+source ./logger.sh
 
-LogDir="logs"
-LogFile=$LogDir"/afk_clicker.log" 
-SpawnLogFile=$LogDir"/mobs_spawn.log"
+# Override default value
+SCRIPT_LOGGING_LEVEL="INFO"
+
+SpawnLogFile=$LogDir"/mobs_spawn.log"  # Only for messages about spawntime. Not for debug.
 TmpScrFile="/tmp/aaafk_spawn.png"
 TmpBWScrFile1="/tmp/aaafk_spawn_bw1.png"
 TmpBWScrFile2="/tmp/aaafk_spawn_bw2.png"
@@ -13,29 +13,8 @@ TmpScrFile1="/tmp/aaafk_spawn_tmp1.png" # Remove later. See the line 64.
 TmpScrFile2="/tmp/aaafk_spawn_tmp2.png" # Remove later. See the line 81. 
 TmpOCRfile="/tmp/aaafk_spawn_ocr.txt"
 
-logger () {
-  log_priority=$1
-  log_message=$2
-
-  #check if level exists
-  [[ ${levels[$log_priority]} ]] || return 1
-
-  #check if level is enough
-  (( ${levels[$log_priority]} < ${levels[$script_logging_level]} )) && return 2
-
-  echo `date +%Y%m%d\|%H:%M:%S\|`" spawn-tracker.sh| ${log_priority}| ${log_message}" >> $LogFile 
-}
-
-errAbsorb () {
- # syntax:   <command> 2> >(errAbsorb)
- while read inputLine; 
- do
-   logger "ERROR" "$inputLine"
- done
-}
 
 logger "INFO" "Starting..."
-
 
 # Determine window id for the screenshot capturing
 until [ -n "${winid}" ]
@@ -81,7 +60,8 @@ do
     convert $TmpScrFile -brightness-contrast 0x70 $TmpScrFile2
     convert $TmpScrFile2 -negate -threshold 70% $TmpBWScrFile2
 
-    if [ "$script_logging_level" = "DEBUG" ]; then 
+    if [ "$SCRIPT_LOGGING_LEVEL" = "DEBUG" ]; then 
+      if [ -z $LogDir ]; then  LogDir=`grep "LogDir" $ConfigFile  | awk -F '=' '{print $2}'` ; fi
       bkpDir=$LogDir"/"$screentime"-spawn"
       mkdir -p $bkpDir
       cp $TmpScrFile    $bkpDir"/"$screentime"-spawn.png" 

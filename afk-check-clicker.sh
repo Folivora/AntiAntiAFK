@@ -8,45 +8,20 @@ ConfigFile="./aaafk.cfg"
 # for 1920x1080 screen resolution make link:
 # ln -s aaafk-1920x1080.cfg aaafk.cfg
 
-declare -A levels=([DEBUG]=0 [INFO]=1 [ERROR]=2)
+source $ConfigFile
+source ./logger.sh
 
-#####################
-## DEFAULT CONFIG: ##
-#####################
-
-script_logging_level="DEBUG"
+# Override default value 
+SCRIPT_LOGGING_LEVEL="DEBUG"
 
 CALIBRATION=false
 
-LogDir="logs/"
-LogFile=$LogDir"afk_clicker.log"
-CalibrationFile="./calibration.png"
-TmpScrFile="/tmp/test-ocr.png"
-TmpBWScrFile="/tmp/test-ocr-bw.png"
-
-resolutOffsetW=46
-resolutOffsetH=61
-w_rndm_max=20
-h_rndm_max=3
-
-WindowName="florr.io"
 Trigger_Phrase="AFK Check"
-work_with_windows=false
 sleeptime=20
 
-#####################
-
-# default values (from the default config above) are used if the config file is not used
-# or some values are not set
-
-# settings from the config file override default config
-
-if [ -f $ConfigFile ]; then
-    . $ConfigFile
-fi
 
 # settings can be also given as parameters
-# they override default config and config file
+# they override config file and above values
 
 for arg in "$@"; do
     if echo "$arg" | grep -F = &>/dev/null
@@ -56,32 +31,7 @@ for arg in "$@"; do
 done
 
 
-mkdir -p "$LogDir"
-scriptname=`basename "$0"`
-
-logger () {
-  log_priority=$1
-  log_message=$2
-
-  #check if level exists
-  [[ ${levels[$log_priority]} ]] || return 1
-
-  #check if level is enough
-  (( ${levels[$log_priority]} < ${levels[$script_logging_level]} )) && return 2
-
-  echo `date +%Y%m%d\|%H:%M:%S\|`" $scriptname| ${log_priority}| ${log_message}" >> $LogFile 
-}
-
-errAbsorb () {
- # syntax:   <command> 2> >(errAbsorb)
- while read inputLine; 
- do
-   logger "ERROR" "$inputLine"
- done
-}
-
 logger "INFO" "Starting..."
-
 
 if ! $CALIBRATION ; then
   # Determine window id for the screenshot capturing
@@ -92,8 +42,9 @@ if ! $CALIBRATION ; then
     winid=`xwininfo -tree -root | grep "$WindowName" | awk '{print $1}' | head -n1`
   done
   logger "INFO" "\"$WindowName\" window id is $winid"
-  echo   "\"$WindowName\" window id is $winid"
+  echo          "\"$WindowName\" window id is $winid"
 fi
+
 
 while true
 do 
@@ -106,7 +57,7 @@ do
   fi
   convert $TmpScrFile -negate -threshold 30% $TmpBWScrFile 2> >(errAbsorb)
   
-  TriggerPhrase=$Trigger_Phrase
+  TriggerPhrase=$Trigger_Phrase  # Value of this variable must set every iteration
   logger "DEBUG" "TriggerPhrase=\"$TriggerPhrase\""
   
   # Search the trigger phrase
@@ -360,6 +311,7 @@ do
        Height=`expr $winCoordinateH + $coordinateHeight + $resolutOffsetH + $h_rndm`
 
        logger "DEBUG" "coordinateWidth is $coordinateWidth. coordinateHeight is $coordinateHeight."
+       logger "DEBUG" " resolutOffsetW is $resolutOffsetW.  resolutOffsetH is $resolutOffsetH."
        logger "DEBUG" " winCoordinateW is $winCoordinateW.  winCoordinateH is $winCoordinateH."
        logger "DEBUG" "         w_rndm is $w_rndm.          h_rndm is $h_rndm."
        logger "INFO" "Click at position $Width"x"$Height"
