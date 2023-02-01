@@ -58,7 +58,7 @@ do
     convert $SptTmpScrFile2 -negate -threshold 70% $SptTmpBWScrFile2
 
     if [ "$SCRIPT_LOGGING_LEVEL" = "DEBUG" ]; then 
-      if [ -z $LogDir ]; then  LogDir=`grep "LogDir" $ConfigFile  | awk -F '=' '{print $2}'` ; fi
+      if [ -z $LogDir ]; then  eval `grep "LogDir=" $ConfigFile` ; fi
       bkpDir=$LogDir"/"$screentime"-spawn"
       mkdir -p $bkpDir
       cp $SptTmpScrFile    $bkpDir"/"$screentime"-spawn.png" 
