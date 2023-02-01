@@ -1,11 +1,14 @@
 #!/bin/bash
 
+ConfigFile="./aaafk.cfg"
+
+source $ConfigFile
 source ./logger.sh
 
 # Override default value
 SCRIPT_LOGGING_LEVEL="INFO"
 
-TmpScrFile="/tmp/aaafk-clicker-scr.png"
+if [ ! -d "$TmpDir" ]; then mkdir -p "$TmpDir" ; fi
 
 logger "INFO" "Starting..."
 # Determine window id for the screenshot capturing
@@ -25,10 +28,10 @@ do
   sleep $sleeptime 
 
   # Check color of pixel (1DD129FF = player is dead, don't press key)
-  #flameshot full -r > $TmpScrFile 
-  import -silent -window $winid $TmpScrFile 2> >(errAbsorb)
+  #flameshot full -r > $ClkTmpScrFile 
+  import -silent -window $winid $ClkTmpScrFile 2> >(errAbsorb)
   screentime=`date +%Y%m%d-%H-%M-%S`
-  pixcolor=$(convert $TmpScrFile -format "%[hex:u.p{675,500}]\n" info: 2> >(errAbsorb))
+  pixcolor=$(convert $ClkTmpScrFile -format "%[hex:u.p{675,500}]\n" info: 2> >(errAbsorb))
   if [ "$pixcolor" != "1DD129FF" ]; then
 
     keycode=$(shuf -n1 -e 10 15)  # 10 is key '1', 15 is key '6'.

@@ -1,18 +1,15 @@
 #!/bin/bash
 
+ConfigFile="./aaafk.cfg"
+
+source $ConfigFile
 source ./logger.sh
 
 # Override default value
 SCRIPT_LOGGING_LEVEL="INFO"
 
-SpawnLogFile=$LogDir"/mobs_spawn.log"  # Only for messages about spawntime. Not for debug.
-TmpScrFile="/tmp/aaafk_spawn.png"
-TmpBWScrFile1="/tmp/aaafk_spawn_bw1.png"
-TmpBWScrFile2="/tmp/aaafk_spawn_bw2.png"
-TmpScrFile1="/tmp/aaafk_spawn_tmp1.png" # Remove later. See the line 64.
-TmpScrFile2="/tmp/aaafk_spawn_tmp2.png" # Remove later. See the line 81. 
-TmpOCRfile="/tmp/aaafk_spawn_ocr.txt"
 
+if [ ! -d "$TmpDir" ]; then mkdir -p "$TmpDir" ; fi
 
 logger "INFO" "Starting..."
 
@@ -35,46 +32,46 @@ do
   sleeptime=10
   sleep $sleeptime 
 
-  import -silent -window $winid -gravity SouthWest -crop 25x10%+0+0 +repage $TmpScrFile 2> >(errAbsorb)
+  import -silent -window $winid -gravity SouthWest -crop 25x10%+0+0 +repage $SptTmpScrFile 2> >(errAbsorb)
   screentime=`date +%Y%m%d-%H-%M-%S`
   logger "DEBUG" "A screenshot has been taken. Screentime is $screentime."
 
-  #convert $TmpScrFile -colorspace YCbCr -channel Red -fx "0.1" +channel \ 
+  #convert $SptTmpScrFile -colorspace YCbCr -channel Red -fx "0.1" +channel \ 
   #                    -channel R -separate \ 
-  #                    -brightness-contrast 0x50  $TmpBWScrFile1
+  #                    -brightness-contrast 0x50  $SptTmpBWScrFile1
 
-  convert $TmpScrFile -colorspace YCbCr -channel Red -fx "0.1" +channel $TmpScrFile1 2> >(errAbsorb)
-  convert $TmpScrFile1 -channel R -separate $TmpScrFile1 2> >(errAbsorb)
-  convert $TmpScrFile1 -brightness-contrast 0x50 $TmpScrFile1 2> >(errAbsorb)
-  convert $TmpScrFile1 -negate -threshold 60% $TmpBWScrFile1 2> >(errAbsorb)
+  convert $SptTmpScrFile -colorspace YCbCr -channel Red -fx "0.1" +channel $SptTmpScrFile1 2> >(errAbsorb)
+  convert $SptTmpScrFile1 -channel R -separate $SptTmpScrFile1 2> >(errAbsorb)
+  convert $SptTmpScrFile1 -brightness-contrast 0x50 $SptTmpScrFile1 2> >(errAbsorb)
+  convert $SptTmpScrFile1 -negate -threshold 60% $SptTmpBWScrFile1 2> >(errAbsorb)
   
   # Search the TriggerPhrase1 (about spawning)
-  tesseract -l eng -c textord_min_xheight=4 $TmpBWScrFile1 - >$TmpOCRfile quiet 2> >(errAbsorb) 
-  foundPhrase=`grep -iP "$TriggerPhrase1" $TmpOCRfile`
+  tesseract -l eng -c textord_min_xheight=4 $SptTmpBWScrFile1 - >$SptTmpOCRfile quiet 2> >(errAbsorb) 
+  foundPhrase=`grep -iP "$TriggerPhrase1" $SptTmpOCRfile`
 
   if [ -n "${foundPhrase}" ]; then
     # The TriggerPhrase1 was found.
     # Search TriggerPhrase2 (Chat check. Need to check the message about spawn is new).
     logger "DEBUG" "Found the TriggerPhrase1: \"$foundPhrase\"."
 
-    convert $TmpScrFile -brightness-contrast 0x70 $TmpScrFile2
-    convert $TmpScrFile2 -negate -threshold 70% $TmpBWScrFile2
+    convert $SptTmpScrFile -brightness-contrast 0x70 $SptTmpScrFile2
+    convert $SptTmpScrFile2 -negate -threshold 70% $SptTmpBWScrFile2
 
     if [ "$SCRIPT_LOGGING_LEVEL" = "DEBUG" ]; then 
       if [ -z $LogDir ]; then  LogDir=`grep "LogDir" $ConfigFile  | awk -F '=' '{print $2}'` ; fi
       bkpDir=$LogDir"/"$screentime"-spawn"
       mkdir -p $bkpDir
-      cp $TmpScrFile    $bkpDir"/"$screentime"-spawn.png" 
-      cp $TmpScrFile1   $bkpDir"/"$screentime"-spawn1.png" 
-      cp $TmpScrFile2   $bkpDir"/"$screentime"-spawn2.png" 
-      cp $TmpBWScrFile1 $bkpDir"/"$screentime"-spawnBW1.png" 
-      cp $TmpBWScrFile2 $bkpDir"/"$screentime"-spawnBW2.png" 
-      cp $TmpOCRfile    $bkpDir"/"$screentime"-spawnOCR.txt" 
+      cp $SptTmpScrFile    $bkpDir"/"$screentime"-spawn.png" 
+      cp $SptTmpScrFile1   $bkpDir"/"$screentime"-spawn1.png" 
+      cp $SptTmpScrFile2   $bkpDir"/"$screentime"-spawn2.png" 
+      cp $SptTmpBWScrFile1 $bkpDir"/"$screentime"-spawnBW1.png" 
+      cp $SptTmpBWScrFile2 $bkpDir"/"$screentime"-spawnBW2.png" 
+      cp $SptTmpOCRfile    $bkpDir"/"$screentime"-spawnOCR.txt" 
     fi
 
     # Search the TriggerPhrase2 (chat check)
     logger "DEBUG" "Search the TriggerPhrase2."
-    result=`tesseract -l eng -c textord_min_xheight=4 $TmpBWScrFile2 - quiet 2> >(errAbsorb) |  grep -i "$TriggerPhrase2" | wc -l`
+    result=`tesseract -l eng -c textord_min_xheight=4 $SptTmpBWScrFile2 - quiet 2> >(errAbsorb) |  grep -i "$TriggerPhrase2" | wc -l`
 
     if [ $result -ge 1 ]; then
       logger "INFO" "Ultra mob was spawned at $screentime. Found message is: $foundPhrase"

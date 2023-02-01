@@ -45,6 +45,7 @@ if ! $CALIBRATION ; then
   echo          "\"$WindowName\" window id is $winid"
 fi
 
+if [ ! -d "$TmpDir" ]; then mkdir -p "$TmpDir" ; fi
 
 while true
 do 

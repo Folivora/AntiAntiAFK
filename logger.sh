@@ -20,7 +20,7 @@ logger () {
   #check if level is enough
   (( ${levels[$log_priority]} < ${levels[$SCRIPT_LOGGING_LEVEL]} )) && return 2
 
-  mkdir -p "$LogDir"
+  if [ ! -d "$LogDir" ]; then mkdir -p "$LogDir" ; fi
   echo `date +%Y%m%d\|%H:%M:%S\|`" `basename $0`| ${log_priority}| ${log_message}" >> $LogFile 
 }
 
