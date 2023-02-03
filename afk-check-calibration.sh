@@ -1,6 +1,6 @@
 #!/bin/bash
 dir_samples=screensamples
-dir_results=calibration
+dir_results=screensamples/calibration
 
 
 show_help()

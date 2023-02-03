@@ -1,9 +1,21 @@
 #!/bin/bash
 
-ConfigFile="./aaafk.cfg"
+source ./functions/logger.sh
 
-source $ConfigFile
-source ./logger.sh
+eval SCRIPT_LOGGING_LEVEL=`./functions/get_variable.py SCRIPT_LOGGING_LEVEL`
+
+eval LogDir=`./functions/get_variable.py LogDir`
+eval LogFile=`./functions/get_variable.py LogFile`
+eval TmpDir=`./functions/get_variable.py TmpDir`
+
+eval SpawnLogFile=`./functions/get_variable.py SpawnLogFile`
+
+eval SptTmpScrFile=`./functions/get_variable.py SptTmpScrFile`
+eval SptTmpBWScrFile1=`./functions/get_variable.py SptTmpBWScrFile1`
+eval SptTmpBWScrFile2=`./functions/get_variable.py SptTmpBWScrFile2`
+eval SptTmpScrFile1=`./functions/get_variable.py SptTmpScrFile1`
+eval SptTmpScrFile2=`./functions/get_variable.py SptTmpScrFile2`
+eval SptTmpOCRfile=`./functions/get_variable.py SptTmpOCRfile`
 
 # Override default value
 SCRIPT_LOGGING_LEVEL="INFO"

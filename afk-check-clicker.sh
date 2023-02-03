@@ -1,27 +1,36 @@
 #!/bin/bash
 
-ConfigFile="./aaafk.cfg"
-
-# for 1366x768 screen resolution make link:
-# ln -s aaafk-1366x768.cfg aaafk.cfg
-
-# for 1920x1080 screen resolution make link:
-# ln -s aaafk-1920x1080.cfg aaafk.cfg
-
-source $ConfigFile
-source ./logger.sh
-
-# Override default value 
-SCRIPT_LOGGING_LEVEL="DEBUG"
+source ./functions/logger.sh
 
 CALIBRATION=false
 
 Trigger_Phrase="AFK Check"
-sleeptime=20
 
+eval SCRIPT_LOGGING_LEVEL=`./functions/get_variable.py SCRIPT_LOGGING_LEVEL`
+
+eval LogDir=`./functions/get_variable.py LogDir`
+eval LogFile=`./functions/get_variable.py LogFile`
+eval TmpDir=`./functions/get_variable.py TmpDir`
+
+eval sleeptime=`./functions/get_variable.py sleeptime`
+
+eval CalibrationFile=`./functions/get_variable.py CalibrationFile`
+eval TmpScrFile=`./functions/get_variable.py TmpScrFile`
+eval TmpBWScrFile=`./functions/get_variable.py TmpBWScrFile`
+
+eval resolutOffsetW=`./functions/get_variable.py resolutOffsetW`
+eval resolutOffsetH=`./functions/get_variable.py resolutOffsetH`
+eval w_rndm_max=`./functions/get_variable.py w_rndm_max`
+eval h_rndm_max=`./functions/get_variable.py h_rndm_max`
+
+eval WindowName=`./functions/get_variable.py WindowName`
+eval work_with_windows=`./functions/get_variable.py work_with_windows`
+
+# Override default value 
+SCRIPT_LOGGING_LEVEL="DEBUG"
 
 # settings can be also given as parameters
-# they override config file and above values
+# they override default values from config
 
 for arg in "$@"; do
     if echo "$arg" | grep -F = &>/dev/null
@@ -29,6 +38,8 @@ for arg in "$@"; do
          else echo "ERROR: $arg - wrong parameter"
     fi
 done
+
+if [ ! -d "$TmpDir" ]; then mkdir -p "$TmpDir" ; fi
 
 
 logger "INFO" "Starting..."
@@ -45,7 +56,6 @@ if ! $CALIBRATION ; then
   echo          "\"$WindowName\" window id is $winid"
 fi
 
-if [ ! -d "$TmpDir" ]; then mkdir -p "$TmpDir" ; fi
 
 while true
 do 
