@@ -58,8 +58,13 @@ done
 
 mkdir -p $dir_results
 
+i=0
+countFiles=`ls -l $dir_samples/*.png | wc -l`
 for fname in $dir_samples/*.png; do
+  ((i+=1)) 
   bfname=`basename "$fname"`
-  echo "=> $fname"
-  ./afk-check-clicker.sh CALIBRATION=true TmpScrFile="$fname" CalibrationFile="$dir_results/$bfname" $tParams
+  echo "$i/$countFiles => $fname"
+  \time -f "          %E real, %U user, %S sys" \
+    ./afk-check-clicker.sh CALIBRATION=true TmpScrFile="$fname" CalibrationFile="$dir_results/$bfname" $tParams
+
 done
