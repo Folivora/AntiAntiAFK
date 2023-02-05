@@ -1,0 +1,7 @@
+2023-02-05
+    * Rewrited mechanism of searching the trigger phrase by afk-check-clicker: 
+      Checking TriggerPhrase in a screenshot in one call to tesseract-ocr now.
+
+2023-02-03
+    * Nesting userconfig files is available now. Values in nested userconfig files 
+      have higher priority than its in a parent conf file. 

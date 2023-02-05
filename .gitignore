@@ -3,4 +3,5 @@ calibration
 logs
 tmp
 testdata
+*.swp
 aaafk.cfg
