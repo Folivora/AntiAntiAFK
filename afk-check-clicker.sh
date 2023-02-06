@@ -27,7 +27,7 @@ eval WindowName=`./functions/get_variable.py WindowName`
 eval work_with_windows=`./functions/get_variable.py work_with_windows`
 
 # Override default value 
-SCRIPT_LOGGING_LEVEL="DEBUG"
+#SCRIPT_LOGGING_LEVEL="DEBUG"
 
 # settings can be also given as parameters
 # they override default values from config
@@ -67,7 +67,7 @@ do
     logger "DEBUG" "A screenshot has been taken. Screentime is $screentime."
   fi
 
-  # prepare image for ORC process
+  # prepare image for OCR process
   convert $TmpScrFile -negate -threshold 30% $TmpBWScrFile 2> >(errAbsorb)
   
   # OCR image & get coordinates of the trigger phrase

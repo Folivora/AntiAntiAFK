@@ -16,7 +16,7 @@ cfgFiles = [ ( ConfigFile, 0) ]           # list of tuples (path_to_cfgfile, nes
 value = []
 for currCfgFile in cfgFiles:
     if not os.path.exists(currCfgFile[0]):
-        print('Config file \"'+currCfgFile[0]+'\" does not exist!')
+        #print('Config file \"'+currCfgFile[0]+'\" does not exist!') # this print() for debug only!
         continue 
     with open(currCfgFile[0], 'r') as f:
         nestLvl=currCfgFile[1]
@@ -39,7 +39,7 @@ if value == []:
 currMax=0
 param=value[currMax]
 for i in value:
-    if i[1] > currMax:
+    if i[1] >= currMax:
         param=i[0]
 
-print(param[0])
+print(param)
