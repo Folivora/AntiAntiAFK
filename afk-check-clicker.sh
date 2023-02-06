@@ -13,9 +13,9 @@ eval LogFile=`./functions/get_variable.py LogFile`
 eval TmpDir=`./functions/get_variable.py TmpDir`
 
 eval CalibrationFile=`./functions/get_variable.py CalibrationFile`
-eval TmpScrFile=`./functions/get_variable.py TmpScrFile`
 eval TmpBWScrFile=`./functions/get_variable.py TmpBWScrFile`
 
+eval acc_ScrDepth=`./functions/get_variable.py acc_ScrDepth`
 eval sleeptime=`./functions/get_variable.py sleeptime`
 
 eval resolutOffsetW=`./functions/get_variable.py resolutOffsetW`
@@ -39,6 +39,7 @@ for arg in "$@"; do
     fi
 done
 
+TmpDir=$TmpDir`basename $0`
 if [ ! -d "$TmpDir" ]; then mkdir -p "$TmpDir" ; fi
 
 
@@ -57,13 +58,24 @@ if ! $CALIBRATION ; then
 fi
 
 logger "DEBUG" "TriggerPhrase=\"$TriggerPhrase\""
+
+arrScr=()
 while true
 do 
   if ! $CALIBRATION ; then
     sleep $sleeptime
-    #flameshot full -r > $TmpScrFile 
-    import -silent -window $winid $TmpScrFile 2> >(errAbsorb)
+
     screentime=`date +%Y%m%d-%H-%M-%S`
+    TmpScrFile=$TmpDir"/"$screentime".png"
+    arrScr+=($TmpScrFile)
+
+    if [ ${#arrScr[*]} -gt $acc_ScrDepth ]; then
+        rm ${arrScr[0]}  
+        unset arrScr[0]
+        arrScr=("${arrScr[@]}")  # Reindex array after unset.
+    fi
+
+    import -silent -window $winid $TmpScrFile 2> >(errAbsorb)
     logger "DEBUG" "A screenshot has been taken. Screentime is $screentime."
   fi
 
