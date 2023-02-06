@@ -2,12 +2,14 @@
 1) Install all the requirements with your packet manager (see section bellow).
 2) Install virtualenv package in your system:  
 `pip3 install virtualenv`  
+`source ~/.profile`  
 (note for Ubuntu 21.10)  
 Installation package virtualenv with `sudo apt install python3-virtualenv` was cause of error:  
 > "ModuleNotFoundError: No module named 'virtualenv'"  
 3) Create virtualenv project:  
 `virtualenv -p python3 <dir_name> `  
-4) Install all the python-requirements:  
+4) `source <dir_name>/bin/activate`  
+5) Install all the python-requirements:  
 `pip3 install -r requrements.txt`  
 If particular version of any packet unavailable for your os you can try install the last available version. To do this you just need to change entry `<package>==<ver>` to `<package>` in requirements.txt.
 
