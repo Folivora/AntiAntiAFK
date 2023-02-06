@@ -64,7 +64,7 @@ for fname in $dir_samples/*.png; do
   ((i+=1)) 
   bfname=`basename "$fname"`
   echo "$i/$countFiles => $fname"
-  \time -f "          %E real, %U user, %S sys" \
+  /usr/bin/time -f "          %E real, %U user, %S sys" \
     ./afk-check-clicker.sh CALIBRATION=true TmpScrFile="$fname" CalibrationFile="$dir_results/$bfname" $tParams
 
 done
