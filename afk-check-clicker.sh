@@ -40,7 +40,11 @@ for arg in "$@"; do
 done
 
 TmpDir=$TmpDir`basename $0`
-if [ ! -d "$TmpDir" ]; then mkdir -p "$TmpDir" ; fi
+if [ ! -d "$TmpDir" ]; then 
+    mkdir -p "$TmpDir"
+else
+    rm ${TmpDir}/*.png
+fi
 
 
 logger "INFO" "Starting..."
@@ -121,7 +125,7 @@ do
        logger "DEBUG" " resolutOffsetW is $resolutOffsetW.  resolutOffsetH is $resolutOffsetH."
        logger "DEBUG" " winCoordinateW is $winCoordinateW.  winCoordinateH is $winCoordinateH."
        logger "DEBUG" "         w_rndm is $w_rndm.          h_rndm is $h_rndm."
-       logger "INFO" "Click at position $Width"x"$Height"
+       logger "INFO" "Click at position $Width"x"$Height (Relative coordinates `expr $Width - $winCoordinateW`x`expr $Height - $winCoordinateH`)"
 
        if $CALIBRATION ; then
          convert $CalibrationFile -fill red -stroke black -draw "circle $Width,$Height `expr $Width + 2`,`expr $Height + 2`" $CalibrationFile 2> >(errAbsorb)
