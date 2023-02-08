@@ -10,6 +10,8 @@ eval TmpDir=`./functions/get_variable.py TmpDir`
 
 eval ClkTmpScrFile=`./functions/get_variable.py ClkTmpScrFile`
 
+eval work_with_windows=`./functions/get_variable.py work_with_windows`
+
 
 # Override default value
 SCRIPT_LOGGING_LEVEL="INFO"
@@ -43,9 +45,26 @@ do
     keycode=$(shuf -n1 -e 10 15)  # 10 is key '1', 15 is key '6'.
     sleeptime2=$(echo $(shuf -i 1-10 -n 1)"."$(shuf -i 0-9 -n 1))
 
-    xdotool key $keycode 2> >(errAbsorb)
-    sleep $sleeptime2 
-    xdotool key $keycode 2> >(errAbsorb) 
+    if $work_with_windows ; then
+       currentwindowid=`xdotool getactivewindow` 2> >(errAbsorb)
+       xdotool  windowactivate $winid  2> >(errAbsorb)    # it didn't work properly if it was 1 command instead of 2 (xdotool bug?)
+    
+       # `xdotool getactivewindow` will not work with Wayland (Ubuntu) properly.
+       if [ ! -z $currentwindowid ]; then
+           xdotool key $keycode 2> >(errAbsorb)
+           sleep $sleeptime2 
+           xdotool key $keycode windowactivate $currentwindowid  2> >(errAbsorb)
+       else
+           xdotool key $keycode 2> >(errAbsorb)
+           sleep $sleeptime2 
+           xdotool key $keycode 2> >(errAbsorb)
+       fi
+    else
+       xdotool key $keycode 2> >(errAbsorb)
+       sleep $sleeptime2 
+       xdotool key $keycode 2> >(errAbsorb)
+    fi
+
     logger "INFO" "The key with keycode $keycode has been pressed twice with interval of $sleeptime2 sec."
 
   else
