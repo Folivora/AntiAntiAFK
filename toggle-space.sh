@@ -24,4 +24,17 @@ echo          "florr.io window id is $winid"
 
 
 keycode=65
-xdotool keydown $keycode #2> >(errAbsorb)
+
+if $work_with_windows ; then
+    currentwindowid=`xdotool getactivewindow` 2> >(errAbsorb)
+    xdotool  windowactivate $winid  2> >(errAbsorb)    # it didn't work properly if it was 1 command instead of 2 (xdotool bug?)
+ 
+    # `xdotool getactivewindow` will not work with Wayland (Ubuntu) properly.
+    if [ ! -z $currentwindowid ]; then
+        xdotool keydown $keycode windowactivate $currentwindowid 2> >(errAbsorb)
+    else
+        xdotool keydown $keycode 2> >(errAbsorb)
+    fi
+else
+    xdotool keydown $keycode 2> >(errAbsorb)
+fi  
