@@ -17,24 +17,18 @@ until [ -n "${winid}" ]
 do
   echo "Search florr.io window id.."
   sleep 1
-  winid=`xwininfo -tree -root | grep "florr.io" | awk '{print $1}'`
+  winid=`xwininfo -tree -root | grep "florr.io" | awk '{print $1}' | head -n1`
 done
 logger "INFO" "florr.io window id is $winid"
 echo          "florr.io window id is $winid"
 
 
-keycode=65
+# 1. There's only two way to toggle to attack mode - with mouse's left button and with space key.
+#    We need to use only space key here because using mouse's left click will lock working of other 
+#    scripts which use left click too. 
+# 2. There's must not switching back to currentwinid with windowactivate when we are using space to toggle to attack
+#    mode because keydown of space will no longer be sent to winid but will be sent to currentwinid in this case.
+#    (Tested on MATE DE 1.20.4 with debian 10)
 
-if $work_with_windows ; then
-    currentwindowid=`xdotool getactivewindow` 2> >(errAbsorb)
-    xdotool  windowactivate $winid  2> >(errAbsorb)    # it didn't work properly if it was 1 command instead of 2 (xdotool bug?)
- 
-    # `xdotool getactivewindow` will not work with Wayland (Ubuntu) properly.
-    if [ ! -z $currentwindowid ]; then
-        xdotool keydown $keycode windowactivate $currentwindowid 2> >(errAbsorb)
-    else
-        xdotool keydown $keycode 2> >(errAbsorb)
-    fi
-else
-    xdotool keydown $keycode 2> >(errAbsorb)
-fi  
+keycode=65  # Space
+xdotool windowactivate $winid windowfocus $winid keydown $keycode 2> >(errAbsorb)
