@@ -27,7 +27,7 @@ eval WindowName=`./functions/get_variable.py WindowName`
 eval work_with_windows=`./functions/get_variable.py work_with_windows`
 
 # Override default value 
-#SCRIPT_LOGGING_LEVEL="DEBUG"
+SCRIPT_LOGGING_LEVEL="DEBUG"
 
 # settings can be also given as parameters
 # they override default values from config
@@ -43,7 +43,7 @@ TmpDir=$TmpDir`basename $0`
 if [ ! -d "$TmpDir" ]; then 
     mkdir -p "$TmpDir"
 else
-    rm ${TmpDir}/*.png
+    rm ${TmpDir}/*.png 2> >(errAbsorb)
 fi
 
 
@@ -86,11 +86,28 @@ do
   # prepare image for OCR process
   convert $TmpScrFile -negate -threshold 30% $TmpBWScrFile 2> >(errAbsorb)
   
-  # OCR image & get coordinates of the trigger phrase
-  if $CALIBRATION ; then
-    eval result=`./functions/get_coordinates.py  -i $TmpBWScrFile -c 50 -p "$TriggerPhrase" -d $CalibrationFile"_detail"`
+  # OCR image, search TriggerPhrase & get coordinates of the first word of trigger phrase
+  if [ "$SCRIPT_LOGGING_LEVEL" == "DEBUG" ]; then
+
+    logger "DEBUG" "Start OCR process.."
+    if $CALIBRATION ; then
+      tmpvar=`(/usr/bin/time -f "[%E real, %U user, %S sys  (P)%P (W)%W (w)%w (O)%O (F)%F (R)%R]" \
+             ./functions/get_coordinates.py  -i $TmpBWScrFile -c 50 -p "$TriggerPhrase" -d $CalibrationFile"_detail") 2>&1`
+    else
+      tmpvar=`(/usr/bin/time -f "[%E real, %U user, %S sys  (P)%P (W)%W (w)%w (O)%O (F)%F (R)%R]" \
+             ./functions/get_coordinates.py  -i $TmpBWScrFile -c 50 -p "$TriggerPhrase") 2>&1`
+    fi
+    eval result=`echo "$tmpvar" | grep -v real`
+    logger "DEBUG" "OCR process completed: `echo "$tmpvar" | grep real`"
+
   else
-    eval result=`./functions/get_coordinates.py  -i $TmpBWScrFile -c 50 -p "$TriggerPhrase"`
+
+    if $CALIBRATION ; then
+      eval result=`./functions/get_coordinates.py  -i $TmpBWScrFile -c 50 -p "$TriggerPhrase" -d $CalibrationFile"_detail"`
+    else
+      eval result=`./functions/get_coordinates.py  -i $TmpBWScrFile -c 50 -p "$TriggerPhrase"`
+    fi
+
   fi
 
   coordinateWidth=0  # The TriggerPhrase is located to the right of this coordinate.
