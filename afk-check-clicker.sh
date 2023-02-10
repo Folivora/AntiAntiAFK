@@ -91,10 +91,10 @@ do
 
     logger "DEBUG" "Start OCR process.."
     if $CALIBRATION ; then
-      tmpvar=`(/usr/bin/time -f "[%E real, %U user, %S sys  (P)%P (W)%W (w)%w (O)%O (F)%F (R)%R]" \
+      tmpvar=`(/usr/bin/time -f "[%E real, %U user, %S sys  (P: %P) (M,t: %M[kb] %t[kb]) (c,w: %c %w) (W: %W) (O: %O) (F,R: %F %R) ]" \
              ./functions/get_coordinates.py  -i $TmpBWScrFile -c 50 -p "$TriggerPhrase" -d $CalibrationFile"_detail") 2>&1`
     else
-      tmpvar=`(/usr/bin/time -f "[%E real, %U user, %S sys  (P)%P (W)%W (w)%w (O)%O (F)%F (R)%R]" \
+      tmpvar=`(/usr/bin/time -f "[%E real, %U user, %S sys  (P: %P) (M,t: %M[kb] %t[kb]) (c,w: %c %w) (W: %W) (O: %O) (F,R: %F %R) ]" \
              ./functions/get_coordinates.py  -i $TmpBWScrFile -c 50 -p "$TriggerPhrase") 2>&1`
     fi
     eval result=`echo "$tmpvar" | grep -v real`
