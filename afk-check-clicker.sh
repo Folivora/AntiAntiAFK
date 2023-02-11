@@ -6,25 +6,25 @@ CALIBRATION=false
 
 TriggerPhrase="AFK Check"
 
-eval SCRIPT_LOGGING_LEVEL=`./functions/get_variable.py SCRIPT_LOGGING_LEVEL`
+eval SCRIPT_LOGGING_LEVEL=`./functions/get_variable_wrapper.py SCRIPT_LOGGING_LEVEL`
 
-eval LogDir=`./functions/get_variable.py LogDir`
-eval LogFile=`./functions/get_variable.py LogFile`
-eval TmpDir=`./functions/get_variable.py TmpDir`
+eval LogDir=`./functions/get_variable_wrapper.py LogDir`
+eval LogFile=`./functions/get_variable_wrapper.py LogFile`
+eval TmpDir=`./functions/get_variable_wrapper.py TmpDir`
 
-eval CalibrationFile=`./functions/get_variable.py CalibrationFile`
-eval TmpBWScrFile=`./functions/get_variable.py TmpBWScrFile`
+eval CalibrationFile=`./functions/get_variable_wrapper.py CalibrationFile`
+eval TmpBWScrFile=`./functions/get_variable_wrapper.py TmpBWScrFile`
 
-eval acc_ScrDepth=`./functions/get_variable.py acc_ScrDepth`
-eval sleeptime=`./functions/get_variable.py sleeptime`
+eval acc_ScrDepth=`./functions/get_variable_wrapper.py acc_ScrDepth`
+eval sleeptime=`./functions/get_variable_wrapper.py sleeptime`
 
-eval resolutOffsetW=`./functions/get_variable.py resolutOffsetW`
-eval resolutOffsetH=`./functions/get_variable.py resolutOffsetH`
-eval w_rndm_max=`./functions/get_variable.py w_rndm_max`
-eval h_rndm_max=`./functions/get_variable.py h_rndm_max`
+eval resolutOffsetW=`./functions/get_variable_wrapper.py resolutOffsetW`
+eval resolutOffsetH=`./functions/get_variable_wrapper.py resolutOffsetH`
+eval w_rndm_max=`./functions/get_variable_wrapper.py w_rndm_max`
+eval h_rndm_max=`./functions/get_variable_wrapper.py h_rndm_max`
 
-eval WindowName=`./functions/get_variable.py WindowName`
-eval work_with_windows=`./functions/get_variable.py work_with_windows`
+eval WindowName=`./functions/get_variable_wrapper.py WindowName`
+eval work_with_windows=`./functions/get_variable_wrapper.py work_with_windows`
 
 # Override default value 
 SCRIPT_LOGGING_LEVEL="DEBUG"

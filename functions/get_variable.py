@@ -44,7 +44,6 @@ def get_variable(*args):
         if i[1] >= currMax:
             param=i[0]
     
-    print(param)
     return param
 
 

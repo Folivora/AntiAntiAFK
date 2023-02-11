@@ -2,15 +2,15 @@
 
 source ./functions/logger.sh
 
-eval SCRIPT_LOGGING_LEVEL=`./functions/get_variable.py SCRIPT_LOGGING_LEVEL`
+eval SCRIPT_LOGGING_LEVEL=`./functions/get_variable_wrapper.py SCRIPT_LOGGING_LEVEL`
 
-eval LogDir=`./functions/get_variable.py LogDir`
-eval LogFile=`./functions/get_variable.py LogFile`
-eval TmpDir=`./functions/get_variable.py TmpDir`
+eval LogDir=`./functions/get_variable_wrapper.py LogDir`
+eval LogFile=`./functions/get_variable_wrapper.py LogFile`
+eval TmpDir=`./functions/get_variable_wrapper.py TmpDir`
 
-eval ClkTmpScrFile=`./functions/get_variable.py ClkTmpScrFile`
+eval ClkTmpScrFile=`./functions/get_variable_wrapper.py ClkTmpScrFile`
 
-eval work_with_windows=`./functions/get_variable.py work_with_windows`
+eval work_with_windows=`./functions/get_variable_wrapper.py work_with_windows`
 
 
 # Override default value

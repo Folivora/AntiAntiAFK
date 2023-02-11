@@ -17,14 +17,14 @@ cd -- "$( dirname -- "${BASH_SOURCE[0]}" )"
 
 source ./functions/logger.sh
 
-eval SCRIPT_LOGGING_LEVEL=`./functions/get_variable.py SCRIPT_LOGGING_LEVEL`
+eval SCRIPT_LOGGING_LEVEL=`./functions/get_variable_wrapper.py SCRIPT_LOGGING_LEVEL`
 
-eval LogDir=`./functions/get_variable.py LogDir`
-eval LogFile=`./functions/get_variable.py LogFile`
-eval TmpDir=`./functions/get_variable.py TmpDir`
+eval LogDir=`./functions/get_variable_wrapper.py LogDir`
+eval LogFile=`./functions/get_variable_wrapper.py LogFile`
+eval TmpDir=`./functions/get_variable_wrapper.py TmpDir`
 
-eval runclick_keycode=`./functions/get_variable.py runclick_keycode`
-eval runclick_sleeptime=`./functions/get_variable.py runclick_sleeptime`
+eval runclick_keycode=`./functions/get_variable_wrapper.py runclick_keycode`
+eval runclick_sleeptime=`./functions/get_variable_wrapper.py runclick_sleeptime`
 
 lockfile="$TmpDir/run-clicker.pid"
 
