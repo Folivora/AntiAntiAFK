@@ -43,7 +43,9 @@ TmpDir=$TmpDir`basename $0`
 if [ ! -d "$TmpDir" ]; then 
     mkdir -p "$TmpDir"
 else
-    rm ${TmpDir}/*.png 2> >(errAbsorb)
+    if [ "$(ls ${TmpDir})" ]; then
+       rm ${TmpDir}/*.png 2> >(errAbsorb)
+    fi
 fi
 
 
