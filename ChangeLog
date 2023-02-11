@@ -1,3 +1,6 @@
+2023-02-11
+    * Added run-clicker.sh script to make running with bubbles (bubbling) easier.
+
 2023-02-05
     * Rewrited mechanism of searching the trigger phrase by afk-check-clicker: 
       Checking TriggerPhrase in a screenshot in one call to tesseract-ocr now.
