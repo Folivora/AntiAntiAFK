@@ -2,5 +2,6 @@ screensamples
 logs
 tmp
 testdata
+*__pycache__
 *.swp
 aaafk.cfg

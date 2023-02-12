@@ -2,6 +2,7 @@
 
 source ./functions/logger.sh
 source ./functions/get_winid.sh
+source ./functions/prepare-tmpdir.sh
 
 CALIBRATION=false
 
@@ -11,10 +12,11 @@ eval SCRIPT_LOGGING_LEVEL=`./functions/get_variable_wrapper.py SCRIPT_LOGGING_LE
 
 eval LogDir=`./functions/get_variable_wrapper.py LogDir`
 eval LogFile=`./functions/get_variable_wrapper.py LogFile`
+
 eval TmpDir=`./functions/get_variable_wrapper.py TmpDir`
+     TmpBWScrFile=`./functions/get_variable_wrapper.py TmpBWScrFile`
 
 eval CalibrationFile=`./functions/get_variable_wrapper.py CalibrationFile`
-eval TmpBWScrFile=`./functions/get_variable_wrapper.py TmpBWScrFile`
 
 eval acc_ScrDepth=`./functions/get_variable_wrapper.py acc_ScrDepth`
 eval sleeptime=`./functions/get_variable_wrapper.py sleeptime`
@@ -51,14 +53,11 @@ else
   winid=0
 fi
 
-TmpDir=$TmpDir"/"`basename $0`"/$winid"
-if [ ! -d "$TmpDir" ]; then 
-    mkdir -p "$TmpDir"
-else
-    if [ "$(ls ${TmpDir})" ]; then
-       rm ${TmpDir}/*.png 2> >(errAbsorb)
-    fi
-fi
+# Update variable $TmpDir, create dir or clear one if it exist.
+prepare_tmpdir $winid
+
+# Update var below which contains $TmpDir var in the path.
+eval TmpBWScrFile=$TmpBWScrFile
 
 
 logger "DEBUG" "TriggerPhrase=\"$TriggerPhrase\""

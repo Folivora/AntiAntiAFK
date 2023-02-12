@@ -2,21 +2,22 @@
 
 source ./functions/logger.sh
 source ./functions/get_winid.sh
+source ./functions/prepare-tmpdir.sh
 
 eval SCRIPT_LOGGING_LEVEL=`./functions/get_variable_wrapper.py SCRIPT_LOGGING_LEVEL`
 
 eval LogDir=`./functions/get_variable_wrapper.py LogDir`
 eval LogFile=`./functions/get_variable_wrapper.py LogFile`
-eval TmpDir=`./functions/get_variable_wrapper.py TmpDir`
 
 eval SpawnLogFile=`./functions/get_variable_wrapper.py SpawnLogFile`
 
-eval SptTmpScrFile=`./functions/get_variable_wrapper.py SptTmpScrFile`
-eval SptTmpBWScrFile1=`./functions/get_variable_wrapper.py SptTmpBWScrFile1`
-eval SptTmpBWScrFile2=`./functions/get_variable_wrapper.py SptTmpBWScrFile2`
-eval SptTmpScrFile1=`./functions/get_variable_wrapper.py SptTmpScrFile1`
-eval SptTmpScrFile2=`./functions/get_variable_wrapper.py SptTmpScrFile2`
-eval SptTmpOCRfile=`./functions/get_variable_wrapper.py SptTmpOCRfile`
+eval TmpDir=`./functions/get_variable_wrapper.py TmpDir`
+     SptTmpScrFile=`./functions/get_variable_wrapper.py SptTmpScrFile`
+     SptTmpBWScrFile1=`./functions/get_variable_wrapper.py SptTmpBWScrFile1`
+     SptTmpBWScrFile2=`./functions/get_variable_wrapper.py SptTmpBWScrFile2`
+     SptTmpScrFile1=`./functions/get_variable_wrapper.py SptTmpScrFile1`
+     SptTmpScrFile2=`./functions/get_variable_wrapper.py SptTmpScrFile2`
+     SptTmpOCRfile=`./functions/get_variable_wrapper.py SptTmpOCRfile`
 
 # Override default value
 SCRIPT_LOGGING_LEVEL="INFO"
@@ -26,6 +27,17 @@ logger "INFO" "Starting..."
 
 # Determine window id for the screenshot capturing (variable 'winid' will be defined)
 get_winid $TmpDir
+
+# Update variable $TmpDir, create dir or clear one if it exist.
+prepare_tmpdir $winid
+
+# Update vars below which contain $TmpDir var in the path.
+eval SptTmpScrFile=$SptTmpScrFile
+eval SptTmpBWScrFile1=$SptTmpBWScrFile1
+eval SptTmpBWScrFile2=$SptTmpBWScrFile2
+eval SptTmpScrFile1=$SptTmpScrFile1
+eval SptTmpScrFile2=$SptTmpScrFile2
+eval SptTmpOCRfile=$SptTmpOCRfile
 
 
 TriggerPhrase1="An Ultra [a-z]* has spawned"
