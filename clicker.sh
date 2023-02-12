@@ -19,18 +19,8 @@ SCRIPT_LOGGING_LEVEL="INFO"
 
 logger "INFO" "Starting..."
 
-
-# Determine window id for the screenshot capturing (variable 'winid' will be defined)
+# Determine window id (variable 'winid' will be defined)
 get_winid $TmpDir
-
-TmpDir=$TmpDir"/"`basename $0`"/$winid"
-if [ ! -d "$TmpDir" ]; then 
-    mkdir -p "$TmpDir"
-else
-    if [ "$(ls ${TmpDir})" ]; then
-       rm ${TmpDir}/*.png 2> >(errAbsorb)
-    fi  
-fi
 
 
 while true

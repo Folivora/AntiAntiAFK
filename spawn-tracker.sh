@@ -27,15 +27,6 @@ logger "INFO" "Starting..."
 # Determine window id for the screenshot capturing (variable 'winid' will be defined)
 get_winid $TmpDir
 
-TmpDir=$TmpDir"/"`basename $0`"/$winid"
-if [ ! -d "$TmpDir" ]; then 
-    mkdir -p "$TmpDir"
-else
-    if [ "$(ls ${TmpDir})" ]; then
-       rm ${TmpDir}/*.png 2> >(errAbsorb)
-    fi  
-fi
-
 
 TriggerPhrase1="An Ultra [a-z]* has spawned"
 TriggerPhrase2="Press \[ENTER\] or click here"
