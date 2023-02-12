@@ -1,3 +1,6 @@
+2023-02-12
+    * Added ability to run few instances of scripts for different windows simultaneously.
+
 2023-02-11
     * Added run-clicker.sh script to make running with bubbles (bubbling) easier.
 

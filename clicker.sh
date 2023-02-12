@@ -1,6 +1,7 @@
 #!/bin/bash
 
 source ./functions/logger.sh
+source ./functions/get_winid.sh
 
 eval SCRIPT_LOGGING_LEVEL=`./functions/get_variable_wrapper.py SCRIPT_LOGGING_LEVEL`
 
@@ -16,18 +17,21 @@ eval work_with_windows=`./functions/get_variable_wrapper.py work_with_windows`
 # Override default value
 SCRIPT_LOGGING_LEVEL="INFO"
 
-if [ ! -d "$TmpDir" ]; then mkdir -p "$TmpDir" ; fi
-
 logger "INFO" "Starting..."
-# Determine window id for the screenshot capturing
-until [ -n "${winid}" ]
-do
-  echo "Search florr.io window id.."
-  sleep 1
-  winid=`xwininfo -tree -root | grep "florr.io" | awk '{print $1}'`
-done
-logger "INFO" "florr.io window id is $winid"
-echo          "florr.io window id is $winid"
+
+
+# Determine window id for the screenshot capturing (variable 'winid' will be defined)
+get_winid $TmpDir
+
+TmpDir=$TmpDir"/"`basename $0`"/$winid"
+if [ ! -d "$TmpDir" ]; then 
+    mkdir -p "$TmpDir"
+else
+    if [ "$(ls ${TmpDir})" ]; then
+       rm ${TmpDir}/*.png 2> >(errAbsorb)
+    fi  
+fi
+
 
 while true
 do

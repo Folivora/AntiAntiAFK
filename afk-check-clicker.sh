@@ -1,6 +1,7 @@
 #!/bin/bash
 
 source ./functions/logger.sh
+source ./functions/get_winid.sh
 
 CALIBRATION=false
 
@@ -23,7 +24,6 @@ eval resolutOffsetH=`./functions/get_variable_wrapper.py resolutOffsetH`
 eval w_rndm_max=`./functions/get_variable_wrapper.py w_rndm_max`
 eval h_rndm_max=`./functions/get_variable_wrapper.py h_rndm_max`
 
-eval WindowName=`./functions/get_variable_wrapper.py WindowName`
 eval work_with_windows=`./functions/get_variable_wrapper.py work_with_windows`
 
 # Override default value 
@@ -39,7 +39,19 @@ for arg in "$@"; do
     fi
 done
 
-TmpDir=$TmpDir`basename $0`
+
+logger "INFO" "Starting..."
+
+if ! $CALIBRATION ; then
+
+  # Determine window id for the screenshot capturing (variable 'winid' will be defined)
+  get_winid $TmpDir
+
+else
+  winid=0
+fi
+
+TmpDir=$TmpDir"/"`basename $0`"/$winid"
 if [ ! -d "$TmpDir" ]; then 
     mkdir -p "$TmpDir"
 else
@@ -48,20 +60,6 @@ else
     fi
 fi
 
-
-logger "INFO" "Starting..."
-
-if ! $CALIBRATION ; then
-  # Determine window id for the screenshot capturing
-  until [ -n "${winid}" ]
-  do
-    echo "Searching \"$WindowName\" window id..."
-    sleep 1 
-    winid=`xwininfo -tree -root | grep "$WindowName" | awk '{print $1}' | head -n1`
-  done
-  logger "INFO" "\"$WindowName\" window id is $winid"
-  echo          "\"$WindowName\" window id is $winid"
-fi
 
 logger "DEBUG" "TriggerPhrase=\"$TriggerPhrase\""
 

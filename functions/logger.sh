@@ -17,6 +17,7 @@ if [ -z $LogFile ]; then  eval LogFile=`./functions/get_variable.py LogFile` ; f
 logger () {
   log_priority=$1
   log_message=$2
+  log_winid=`if [ -z $winid ]; then echo "0"; else echo $winid; fi`
 
   #check if level exists
   [[ ${levels[$log_priority]} ]] || return 1
@@ -25,7 +26,7 @@ logger () {
   (( ${levels[$log_priority]} < ${levels[$SCRIPT_LOGGING_LEVEL]} )) && return 2
 
   if [ ! -d "$LogDir" ]; then mkdir -p "$LogDir" ; fi
-  echo `date +%Y%m%d\|%H:%M:%S\|`" `basename $0`| ${log_priority}| ${log_message}" >> $LogFile 
+  echo `date +%Y%m%d\|%H:%M:%S\|`" `basename $0`| ${log_winid}| ${log_priority}| ${log_message}" >> $LogFile 
 }
 
 errAbsorb () {

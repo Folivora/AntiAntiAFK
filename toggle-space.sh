@@ -12,15 +12,6 @@ SCRIPT_LOGGING_LEVEL="INFO"
 
 
 logger "INFO" "Starting..."
-# Determine window id for the screenshot capturing
-until [ -n "${winid}" ]
-do
-  echo "Search florr.io window id.."
-  sleep 1
-  winid=`xwininfo -tree -root | grep "florr.io" | awk '{print $1}' | head -n1`
-done
-logger "INFO" "florr.io window id is $winid"
-echo          "florr.io window id is $winid"
 
 
 # 1. There's only two way to toggle to attack mode - with mouse's left button and with space key.
