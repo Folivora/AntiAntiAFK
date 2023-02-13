@@ -29,7 +29,7 @@ eval h_rndm_max=`./functions/get_variable_wrapper.py h_rndm_max`
 eval work_with_windows=`./functions/get_variable_wrapper.py work_with_windows`
 
 # Override default value 
-SCRIPT_LOGGING_LEVEL="DEBUG"
+#SCRIPT_LOGGING_LEVEL="DEBUG"
 
 # settings can be also given as parameters
 # they override default values from config

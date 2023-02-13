@@ -20,7 +20,7 @@ eval TmpDir=`./functions/get_variable_wrapper.py TmpDir`
      SptTmpOCRfile=`./functions/get_variable_wrapper.py SptTmpOCRfile`
 
 # Override default value
-SCRIPT_LOGGING_LEVEL="INFO"
+#SCRIPT_LOGGING_LEVEL="INFO"
 
 
 logger "INFO" "Starting..."
@@ -63,7 +63,16 @@ do
   convert $SptTmpScrFile1 -negate -threshold 60% $SptTmpBWScrFile1 2> >(errAbsorb)
   
   # Search the TriggerPhrase1 (about spawning)
-  tesseract -l eng -c textord_min_xheight=4 $SptTmpBWScrFile1 - >$SptTmpOCRfile quiet 2> >(errAbsorb) 
+  if [ "$SCRIPT_LOGGING_LEVEL" = "DEBUG" ]; then 
+
+    logger "DEBUG" "Start OCR process (searching phrase 1: $TriggerPhrase1) .."
+    tmpvar=`(/usr/bin/time -o /dev/fd/3 -f "[%E real, %U user, %S sys  (P: %P) (M,t: %M[kb] %t[kb]) (c,w: %c %w) (W: %W) (O: %O) (F,R: %F %R) ]" \
+           tesseract -l eng -c textord_min_xheight=4 $SptTmpBWScrFile1 - >$SptTmpOCRfile quiet 3>&2 2> >(errAbsorb)  ) 2>&1` 
+    logger "DEBUG" "OCR process completed: $tmpvar"
+
+  else
+    tesseract -l eng -c textord_min_xheight=4 $SptTmpBWScrFile1 - >$SptTmpOCRfile quiet 2> >(errAbsorb) 
+  fi
   foundPhrase=`grep -iP "$TriggerPhrase1" $SptTmpOCRfile`
 
   if [ -n "${foundPhrase}" ]; then
@@ -86,8 +95,17 @@ do
     fi
 
     # Search the TriggerPhrase2 (chat check)
-    logger "DEBUG" "Search the TriggerPhrase2."
-    result=`tesseract -l eng -c textord_min_xheight=4 $SptTmpBWScrFile2 - quiet 2> >(errAbsorb) |  grep -i "$TriggerPhrase2" | wc -l`
+    if [ "$SCRIPT_LOGGING_LEVEL" = "DEBUG" ]; then 
+
+      logger "DEBUG" "Start OCR process for the second image (searching phrase 2: $TriggerPhrase2) .."
+      tmpvar=`(/usr/bin/time -o /dev/fd/3 -f "[%E real, %U user, %S sys  (P: %P) (M,t: %M[kb] %t[kb]) (c,w: %c %w) (W: %W) (O: %O) (F,R: %F %R) ]" \
+             tesseract -l eng -c textord_min_xheight=4 $SptTmpBWScrFile2 - quiet 3>&2 2> >(errAbsorb) |  grep -i "$TriggerPhrase2" | wc -l ) 2>&1` 
+      logger "DEBUG" "OCR process completed: `echo "$tmpvar" | grep real`"
+      result=`echo "$tmpvar" | grep -v real`
+
+    else
+      result=`tesseract -l eng -c textord_min_xheight=4 $SptTmpBWScrFile2 - quiet 2> >(errAbsorb) |  grep -i "$TriggerPhrase2" | wc -l`
+    fi
 
     if [ $result -ge 1 ]; then
       logger "INFO" "Ultra mob was spawned at $screentime. Found message is: $foundPhrase"

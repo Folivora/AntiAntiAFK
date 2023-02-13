@@ -31,7 +31,7 @@ lockfile="$TmpDir/run-clicker.pid"
 if [ ! -d "$TmpDir" ]; then mkdir -p "$TmpDir" ; fi
 
 # Override default value
-SCRIPT_LOGGING_LEVEL="INFO"
+#SCRIPT_LOGGING_LEVEL="INFO"
 
 if [ -f $lockfile ]; then
   pid=`cat $lockfile`

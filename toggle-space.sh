@@ -10,7 +10,7 @@ eval LogFile=`./functions/get_variable_wrapper.py LogFile`
 eval TmpDir=`./functions/get_variable_wrapper.py TmpDir`
 
 # Override default value
-SCRIPT_LOGGING_LEVEL="INFO"
+#SCRIPT_LOGGING_LEVEL="INFO"
 
 
 logger "INFO" "Starting..."
