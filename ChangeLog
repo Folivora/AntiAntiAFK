@@ -1,3 +1,7 @@
+2023-03-05
+    * Added spawn-tracker-tester.sh to check if spawn-tester.sh can find any
+      messages about mobs spawn in one or more screenshots.
+
 2023-02-14
     * Added measuring resource consumption for OCR process across all scripts.
       CPU utilization will be measuring when logging level = DEBUG.
