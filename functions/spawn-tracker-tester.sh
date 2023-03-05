@@ -61,11 +61,8 @@ mkdir -p $dir_results
 i=0
 countFiles=`ls -l $dir_samples/*.png | wc -l`
 for fname in $dir_samples/*.png; do
-  ((i+=1)) 
-  bfname=`basename "$fname"`".txt"
-  echo "$i/$countFiles => $fname"
-  /usr/bin/time -f "          %E real, %U user, %S sys" \
-    ./spawn-tracker.sh TEST_MODE=true SptTmpScrFile="$fname" TestsDir="$dir_results" $tParams
-
-
+    ((i+=1)) 
+    echo "$i/$countFiles => $fname"
+    /usr/bin/time -f "          %E real, %U user, %S sys" \
+      ./spawn-tracker.sh TEST_MODE=true SptTmpScrFile="$fname" TestsDir="$dir_results" $tParams
 done
