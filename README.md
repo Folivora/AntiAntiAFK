@@ -16,10 +16,11 @@ If particular version of any packet unavailable for your os you can try install 
 #### Requirements
 - python3 
 - python3-pip
+- python3-tk &nbsp;&nbsp;&nbsp;   [Need for hsv-parameter-tester.py only].
 - imagemagick (tested on 8:6.9.10.23 and 8:6.9.11.60)
 - tesseract-ocr (tested on 4.0.0-2 and 4.1.1-2.1)
 - xdotool (tested on 1:3.20160805.1-4)
-- time
+- time &nbsp;&nbsp;&nbsp; [package, not a bash implementation]
 
 ### Config
 Config file is `./aaafk.cfg`
