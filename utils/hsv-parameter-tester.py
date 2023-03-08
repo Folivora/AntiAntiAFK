@@ -16,8 +16,8 @@ imageFile = askopenfilename() # show an "Open" dialog box and return the path to
 
 # Create a window
 windowName='HSV parameter tester'
-cv2.namedWindow(windowName)
-#cv2.namedWindow('image', cv2.WINDOW_NORMAL)
+#cv2.namedWindow(windowName)
+cv2.namedWindow(windowName, cv2.WINDOW_NORMAL)
 
 # create trackbars for color change
 cv2.createTrackbar('lowH',windowName,0,179,nothing)
