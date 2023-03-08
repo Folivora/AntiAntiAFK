@@ -1,3 +1,8 @@
+2023-03-08
+    * Updated spawn-tracker.sh: added ability to detect messages about 'super' mobs.
+    * Added utils/hsv-parameter-tester.py for subtle selection of color ranges 
+      which help more precise detect colored messages by spawn-tracker.sh
+
 2023-03-05
     * Added spawn-tracker-tester.sh to check if spawn-tester.sh can find any
       messages about mobs spawn in one or more screenshots.
