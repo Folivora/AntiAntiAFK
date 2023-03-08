@@ -6,12 +6,12 @@ pathToRoot="../"
 
 # Load default values from config if the variables are empty.
 # Value of these vars can be overridden in a script from which below functions are calling. 
-if [ -z $SCRIPT_LOGGING_LEVEL ]; then  eval SCRIPT_LOGGING_LEVEL=`./functions/get_variable.py SCRIPT_LOGGING_LEVEL` ; fi 
-if [ -z $LogDir ]; then  
-    eval LogDir=`./functions/get_variable.py LogDir` 
-    if [ ! "${LodDir:0:1}" = "/" ]; then LogDir="$pathToRoot""$LogDir" ; fi 
+if [ -z $SCRIPT_LOGGING_LEVEL ]; then  eval SCRIPT_LOGGING_LEVEL=`./functions/get_variable_wrapper.py SCRIPT_LOGGING_LEVEL` ; fi 
+if [ -z "${LogDir}" ]; then  
+    eval LogDir=`./functions/get_variable_wrapper.py LogDir` 
+    if [ ! "${LodDir:0:1}" = "/" ]; then LogDir="${pathToRoot}""${LogDir}" ; fi 
 fi 
-if [ -z $LogFile ]; then  eval LogFile=`./functions/get_variable.py LogFile` ; fi
+if [ -z "${LogFile}" ]; then  eval LogFile=`./functions/get_variable_wrapper.py LogFile` ; fi
 
 
 logger () {
@@ -25,8 +25,8 @@ logger () {
   #check if level is enough
   (( ${levels[$log_priority]} < ${levels[$SCRIPT_LOGGING_LEVEL]} )) && return 2
 
-  if [ ! -d "$LogDir" ]; then mkdir -p "$LogDir" ; fi
-  echo `date +%Y%m%d\|%H:%M:%S\|`" `basename $0`| ${log_winid}| ${log_priority}| ${log_message}" >> $LogFile 
+  if [ ! -d "${LogDir}" ]; then mkdir -p "${LogDir}" ; fi
+  echo `date +%Y%m%d\|%H:%M:%S\|`" `basename $0`| ${log_winid}| ${log_priority}| ${log_message}" >> "${LogFile}" 
 }
 
 errAbsorb () {
