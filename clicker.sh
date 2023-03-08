@@ -10,7 +10,7 @@ eval LogDir=`./functions/get_variable_wrapper.py LogDir`
 eval LogFile=`./functions/get_variable_wrapper.py LogFile`
 
 eval TmpDir=`./functions/get_variable_wrapper.py TmpDir`
-     ClkTmpScrFile=`./functions/get_variable_wrapper.py ClkTmpScrFile`
+     clk_TmpScrFile=`./functions/get_variable_wrapper.py clk_TmpScrFile`
 
 eval work_with_windows=`./functions/get_variable_wrapper.py work_with_windows`
 
@@ -27,7 +27,7 @@ get_winid $TmpDir
 prepare_tmpdir $winid
 
 # Update var below which contains $TmpDir var in the path.
-eval ClkTmpScrFile=$ClkTmpScrFile
+eval clk_TmpScrFile="${clk_TmpScrFile}"
 
 
 while true
@@ -37,10 +37,10 @@ do
   sleep $sleeptime 
 
   # Check color of pixel (1DD129FF = player is dead, don't press key)
-  #flameshot full -r > $ClkTmpScrFile 
-  import -silent -window $winid $ClkTmpScrFile 2> >(errAbsorb)
+  #flameshot full -r > "${clk_TmpScrFile}" 
+  import -silent -window $winid "${clk_TmpScrFile}" 2> >(errAbsorb)
   screentime=`date +%Y%m%d-%H-%M-%S`
-  pixcolor=$(convert $ClkTmpScrFile -format "%[hex:u.p{675,500}]\n" info: 2> >(errAbsorb))
+  pixcolor=$(convert "${clk_TmpScrFile}" -format "%[hex:u.p{675,500}]\n" info: 2> >(errAbsorb))
   if [ "$pixcolor" != "1DD129FF" ]; then
 
     keycode=$(shuf -n1 -e 10 15)  # 10 is key '1', 15 is key '6'.

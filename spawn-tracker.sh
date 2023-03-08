@@ -11,12 +11,12 @@ eval SCRIPT_LOGGING_LEVEL=`./functions/get_variable_wrapper.py SCRIPT_LOGGING_LE
 eval LogDir=`./functions/get_variable_wrapper.py LogDir`
 eval LogFile=`./functions/get_variable_wrapper.py LogFile`
 
-eval SpawnLogFile=`./functions/get_variable_wrapper.py SpawnLogFile`
+eval spt_SpawnLogFile=`./functions/get_variable_wrapper.py spt_SpawnLogFile`
 
 eval TmpDir=`./functions/get_variable_wrapper.py TmpDir`
-     SptTmpScrFile=`./functions/get_variable_wrapper.py SptTmpScrFile`
+     spt_TmpScrFile=`./functions/get_variable_wrapper.py spt_TmpScrFile`
      
-eval SptSleeptime=`./functions/get_variable_wrapper.py SptSleeptime`
+eval spt_Sleeptime=`./functions/get_variable_wrapper.py spt_Sleeptime`
 
 eval spt_LowerValHSV_Red=`./functions/get_variable_wrapper.py spt_LowerValHSV_Red`
 eval spt_UpperValHSV_Red=`./functions/get_variable_wrapper.py spt_UpperValHSV_Red`
@@ -55,17 +55,17 @@ fi
 prepare_tmpdir $winid
 
 # Update var below which contain $TmpDir var in the path.
-eval SptTmpScrFile="${SptTmpScrFile}"
+eval spt_TmpScrFile="${spt_TmpScrFile}"
 
 
 if $TEST_MODE ; then
-    cp "${SptTmpScrFile}" "${TestsDir}"
-    SptTmpScrFile=${TestsDir}"/"`basename "${SptTmpScrFile}"`
+    cp "${spt_TmpScrFile}" "${TestsDir}"
+    spt_TmpScrFile=${TestsDir}"/"`basename "${spt_TmpScrFile}"`
 fi
 
-tmpScr_FileExtension=".${SptTmpScrFile##*.}"
-tmpScr_FileName=`basename "${SptTmpScrFile}" "${tmpScr_FileExtension}"`
-tmpScr_FileDir=`dirname $(readlink -f ${SptTmpScrFile})`
+tmpScr_FileExtension=".${spt_TmpScrFile##*.}"
+tmpScr_FileName=`basename "${spt_TmpScrFile}" "${tmpScr_FileExtension}"`
+tmpScr_FileDir=`dirname $(readlink -f ${spt_TmpScrFile})`
 
 tmpScrBW_RedText=${tmpScr_FileDir}"/"${tmpScr_FileName}"_red_bw"${tmpScr_FileExtension}
 tmpScrBW_GreenText=${tmpScr_FileDir}"/"${tmpScr_FileName}"_green_bw"${tmpScr_FileExtension}
@@ -103,19 +103,19 @@ do
     # Get a screenshot
     if ! $TEST_MODE ; then
         # Take a screenshot
-        sleep $SptSleeptime 
+        sleep $spt_Sleeptime 
 
-        import -silent -window $winid -gravity SouthWest -crop 25x15%+0+0 +repage "${SptTmpScrFile}" 2> >(errAbsorb)
+        import -silent -window $winid -gravity SouthWest -crop 25x15%+0+0 +repage "${spt_TmpScrFile}" 2> >(errAbsorb)
         screentime=`date +%Y%m%d-%H-%M-%S`
         logger "DEBUG" "A screenshot has been taken. Screentime is $screentime."
     else
         # Prepare received screen file (crop it)
-        convert "${SptTmpScrFile}" -gravity SouthWest -crop 25x15%+0+0 +repage "${SptTmpScrFile}" 2> >(errAbsorb)
+        convert "${spt_TmpScrFile}" -gravity SouthWest -crop 25x15%+0+0 +repage "${spt_TmpScrFile}" 2> >(errAbsorb)
     fi
 
     # Convert screenshot to B/W images (extract red and green text)
-    `./functions/imgTransform.py -i "${SptTmpScrFile}" -x "${spt_LowerValHSV_Red}"   "${spt_UpperValHSV_Red}"   -b $spt_BW_Treshold_Red   -o "${tmpScrBW_RedText}"`   2> >(errAbsorb)
-    `./functions/imgTransform.py -i "${SptTmpScrFile}" -x "${spt_LowerValHSV_Green}" "${spt_UpperValHSV_Green}" -b $spt_BW_Treshold_Green -o "${tmpScrBW_GreenText}"` 2> >(errAbsorb)
+    `./functions/imgTransform.py -i "${spt_TmpScrFile}" -x "${spt_LowerValHSV_Red}"   "${spt_UpperValHSV_Red}"   -b $spt_BW_Treshold_Red   -o "${tmpScrBW_RedText}"`   2> >(errAbsorb)
+    `./functions/imgTransform.py -i "${spt_TmpScrFile}" -x "${spt_LowerValHSV_Green}" "${spt_UpperValHSV_Green}" -b $spt_BW_Treshold_Green -o "${tmpScrBW_GreenText}"` 2> >(errAbsorb)
 
     # OCR both B/W screenfiles to text
     if [ "$SCRIPT_LOGGING_LEVEL" = "DEBUG" ]; then 
@@ -148,7 +148,7 @@ do
         logger "DEBUG" "Found a trigger phrase about a mob: \"$foundMsg\"."
 
         # Convert screenshot to B/W image (extract white text)
-        `./functions/imgTransform.py -i "${SptTmpScrFile}" -n $spt_BW_Treshold_White -o "${tmpScrBW_WhiteText}"` 2> >(errAbsorb)
+        `./functions/imgTransform.py -i "${spt_TmpScrFile}" -n $spt_BW_Treshold_White -o "${tmpScrBW_WhiteText}"` 2> >(errAbsorb)
 
         # Search the TriggerPhrase_ChatPrompt
         if [ "$SCRIPT_LOGGING_LEVEL" = "DEBUG" ]; then 
@@ -167,7 +167,7 @@ do
         if [ "${foundChatPrompt}" ]; then
             logger "DEBUG" "Found the chat prompt."
             logger "INFO" "Found message about a mob at $screentime : $foundMsg"
-            echo          "Found message about a mob at $screentime : $foundMsg" >> $SpawnLogFile
+            echo          "Found message about a mob at $screentime : $foundMsg" >> "${spt_SpawnLogFile}"
             echo          "Found message about a mob at $screentime : $foundMsg" 
             if ! $TEST_MODE ; then sleep 60 ; fi
         else
@@ -178,7 +178,7 @@ do
         if [ "$SCRIPT_LOGGING_LEVEL" = "DEBUG" ] && ! $TEST_MODE ; then 
             bkpDir="${LogDir}""/"$screentime"-mobs_message"
             mkdir -p "${bkpDir}"
-            cp "${SptTmpScrFile}"       "${bkpDir}""/"$screentime"-"`basename "${SptTmpScrFile}"`
+            cp "${spt_TmpScrFile}"      "${bkpDir}""/"$screentime"-"`basename "${spt_TmpScrFile}"`
             cp "${tmpScrBW_RedText}"    "${bkpDir}""/"$screentime"-"`basename "${tmpScrBW_RedText}"`
             cp "${tmpScrBW_GreenText}"  "${bkpDir}""/"$screentime"-"`basename "${tmpScrBW_GreenText}"`
             cp "${tmpScrBW_WhiteText}"  "${bkpDir}""/"$screentime"-"`basename "${tmpScrBW_WhiteText}"`

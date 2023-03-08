@@ -12,21 +12,17 @@ eval SCRIPT_LOGGING_LEVEL=`./functions/get_variable_wrapper.py SCRIPT_LOGGING_LE
 
 eval LogDir=`./functions/get_variable_wrapper.py LogDir`
 eval LogFile=`./functions/get_variable_wrapper.py LogFile`
-
 eval TmpDir=`./functions/get_variable_wrapper.py TmpDir`
-     TmpBWScrFile=`./functions/get_variable_wrapper.py TmpBWScrFile`
-
-eval CalibrationFile=`./functions/get_variable_wrapper.py CalibrationFile`
+eval work_with_windows=`./functions/get_variable_wrapper.py work_with_windows`
 
 eval acc_ScrDepth=`./functions/get_variable_wrapper.py acc_ScrDepth`
-eval sleeptime=`./functions/get_variable_wrapper.py sleeptime`
+eval acc_Sleeptime=`./functions/get_variable_wrapper.py acc_Sleeptime`
 
-eval resolutOffsetW=`./functions/get_variable_wrapper.py resolutOffsetW`
-eval resolutOffsetH=`./functions/get_variable_wrapper.py resolutOffsetH`
-eval w_rndm_max=`./functions/get_variable_wrapper.py w_rndm_max`
-eval h_rndm_max=`./functions/get_variable_wrapper.py h_rndm_max`
+eval acc_ResolutOffsetW=`./functions/get_variable_wrapper.py acc_ResolutOffsetW`
+eval acc_ResolutOffsetH=`./functions/get_variable_wrapper.py acc_ResolutOffsetH`
+eval acc_w_rndm_max=`./functions/get_variable_wrapper.py acc_w_rndm_max`
+eval acc_h_rndm_max=`./functions/get_variable_wrapper.py acc_h_rndm_max`
 
-eval work_with_windows=`./functions/get_variable_wrapper.py work_with_windows`
 
 # Override default value 
 #SCRIPT_LOGGING_LEVEL="DEBUG"
@@ -56,9 +52,6 @@ fi
 # Update variable $TmpDir, create dir or clear one if it exist.
 prepare_tmpdir $winid
 
-# Update var below which contains $TmpDir var in the path.
-eval TmpBWScrFile=$TmpBWScrFile
-
 
 logger "DEBUG" "TriggerPhrase=\"$TriggerPhrase\""
 
@@ -66,10 +59,11 @@ arrScr=()
 while true
 do 
   if ! $CALIBRATION ; then
-    sleep $sleeptime
+    sleep $acc_Sleeptime
 
     screentime=`date +%Y%m%d-%H-%M-%S`
     TmpScrFile=$TmpDir"/"$screentime".png"
+    TmpBWScrFile=$TmpDir"/"$screentime"_bw.png"
     arrScr+=($TmpScrFile)
 
     if [ ${#arrScr[*]} -gt $acc_ScrDepth ]; then
@@ -132,15 +126,15 @@ do
          winCoordinateH=`xwininfo -id $winid | grep "Absolute upper-left Y:" | awk '{print $4}'`
        fi
     
-       w_rndm=`seq -$w_rndm_max $w_rndm_max | shuf -n 1`
-       h_rndm=`seq -$h_rndm_max $h_rndm_max | shuf -n 1`
-       Width=`expr $winCoordinateW + $coordinateWidth + $resolutOffsetW + $w_rndm`
-       Height=`expr $winCoordinateH + $coordinateHeight + $resolutOffsetH + $h_rndm`
+       w_rndm=`seq -$acc_w_rndm_max $acc_w_rndm_max | shuf -n 1`
+       h_rndm=`seq -$acc_h_rndm_max $acc_h_rndm_max | shuf -n 1`
+       Width=`expr $winCoordinateW + $coordinateWidth + $acc_ResolutOffsetW + $w_rndm`
+       Height=`expr $winCoordinateH + $coordinateHeight + $acc_ResolutOffsetH + $h_rndm`
 
-       logger "DEBUG" "coordinateWidth is $coordinateWidth. coordinateHeight is $coordinateHeight."
-       logger "DEBUG" " resolutOffsetW is $resolutOffsetW.  resolutOffsetH is $resolutOffsetH."
-       logger "DEBUG" " winCoordinateW is $winCoordinateW.  winCoordinateH is $winCoordinateH."
-       logger "DEBUG" "         w_rndm is $w_rndm.          h_rndm is $h_rndm."
+       logger "DEBUG" "   coordinateWidth is $coordinateWidth.     coordinateHeight is $coordinateHeight."
+       logger "DEBUG" "acc_ResolutOffsetW is $acc_ResolutOffsetW.  acc_ResolutOffsetH is $acc_ResolutOffsetH."
+       logger "DEBUG" "    winCoordinateW is $winCoordinateW.      winCoordinateH is $winCoordinateH."
+       logger "DEBUG" "            w_rndm is $w_rndm.              h_rndm is $h_rndm."
        logger "INFO" "Click at position $Width"x"$Height (Relative coordinates `expr $Width - $winCoordinateW`x`expr $Height - $winCoordinateH`)"
 
        if $CALIBRATION ; then
