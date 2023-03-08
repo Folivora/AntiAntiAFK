@@ -131,12 +131,15 @@ do
 
     # Search phrases about spawning/dying mobs
     for phrase in "${TriggerPhrases_Mobs[@]}"; do
-        line=`grep -iP "$phrase" "${tmpOCR_MobsMessages}"`
-        if [ -n "${line}" ]; then
-            FoundMessages+=("$line")
+        result=`grep -iP "$phrase" "${tmpOCR_MobsMessages}"`
+        if [ -n "${result}" ]; then
+            readarray -t lines <<<"$result"
+            for line in "${lines[@]}"; do
+                FoundMessages+=("$line")
+            done
         fi
     done
-    
+
     if [ ${#FoundMessages[@]} -eq 0 ]; then
         logger "DEBUG" "No messages about mobs found in the current screenshot."
     fi
