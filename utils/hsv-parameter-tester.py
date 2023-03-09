@@ -10,8 +10,11 @@ def nothing(x):
     pass
 
 
-Tk().withdraw() # we don't want a full GUI, so keep the root window from appearing
-imageFile = askopenfilename() # show an "Open" dialog box and return the path to the selected file
+# Choose image file
+Tk().withdraw()  # We don't want a full GUI, so keep the root window from appearing
+imageFile = askopenfilename(title='Choose image file', filetypes = [("image file",".png .jpg"),("all files","*.*")] )
+if not imageFile:
+    exit()
 
 
 # Create a window
