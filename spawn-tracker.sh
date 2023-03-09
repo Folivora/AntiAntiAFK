@@ -3,6 +3,7 @@
 source ./functions/logger.sh
 source ./functions/get_winid.sh
 source ./functions/prepare-tmpdir.sh
+source ./functions/discord_notificator.sh
 
 TEST_MODE=false
 
@@ -169,9 +170,11 @@ do
         # Logging the result
         if [ "${foundChatPrompt}" ]; then
             logger "DEBUG" "Found the chat prompt."
-            logger "INFO" "Found message about a mob at $screentime : $foundMsg"
-            echo          "Found message about a mob at $screentime : $foundMsg" >> "${spt_SpawnLogFile}"
-            echo          "Found message about a mob at $screentime : $foundMsg" 
+
+            logger "INFO"       "Found message about a mob at $screentime : $foundMsg"
+            echo                "Found message about a mob at $screentime : $foundMsg" >> "${spt_SpawnLogFile}"
+            echo                "Found message about a mob at $screentime : $foundMsg" 
+            send_msg_to_discord "Found message about a mob at $screentime : $foundMsg"
             if ! $TEST_MODE ; then sleep 60 ; fi
         else
             logger "DEBUG" "The TriggerPhrase_ChatPrompt not found in current screenshot. Seems the found message about a mob is old."
