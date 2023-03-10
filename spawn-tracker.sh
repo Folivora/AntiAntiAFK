@@ -174,7 +174,7 @@ do
             logger "INFO"       "Found message about a mob at $screentime : $foundMsg"
             echo                "Found message about a mob at $screentime : $foundMsg" >> "${spt_SpawnLogFile}"
             echo                "Found message about a mob at $screentime : $foundMsg" 
-            send_msg_to_discord "Found message about a mob at $screentime : $foundMsg"
+            send_msg_to_discord "$screentime : $foundMsg"
             if ! $TEST_MODE ; then sleep 60 ; fi
         else
             logger "DEBUG" "The TriggerPhrase_ChatPrompt not found in current screenshot. Seems the found message about a mob is old."
