@@ -64,5 +64,5 @@ for fname in $dir_samples/*.png; do
     ((i+=1)) 
     echo "$i/$countFiles => $fname"
     /usr/bin/time -f "          %E real, %U user, %S sys" \
-      ./spawn-tracker.sh TEST_MODE=true SptTmpScrFile="$fname" TestsDir="$dir_results" $tParams
+      ./spawn-tracker.sh TEST_MODE=true spt_TmpScrFile="$fname" TestsDir="$dir_results" $tParams
 done
