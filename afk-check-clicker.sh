@@ -63,7 +63,6 @@ do
 
     screentime=`date +%Y%m%d-%H-%M-%S`
     TmpScrFile=$TmpDir"/"$screentime".png"
-    TmpBWScrFile=$TmpDir"/"$screentime"_bw.png"
     arrScr+=($TmpScrFile)
 
     if [ ${#arrScr[*]} -gt $acc_ScrDepth ]; then
@@ -75,6 +74,7 @@ do
     import -silent -window $winid $TmpScrFile 2> >(errAbsorb)
     logger "DEBUG" "A screenshot has been taken. Screentime is $screentime."
   fi
+  TmpBWScrFile=$TmpDir"/"$screentime"_bw.png"
 
   # prepare image for OCR process
   convert $TmpScrFile -negate -threshold 30% $TmpBWScrFile 2> >(errAbsorb)
