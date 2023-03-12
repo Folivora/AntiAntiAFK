@@ -103,6 +103,8 @@ do
 
   fi
 
+  rm $TmpBWScrFile 2> >(errAbsorb)
+
   coordinateWidth=0  # The TriggerPhrase is located to the right of this coordinate.
   coordinateHeight=0 # The TriggerPhrase is located to the bottom of this coordinate.
   if [ ! -z $result ]; then
